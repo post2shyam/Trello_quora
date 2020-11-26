@@ -54,7 +54,6 @@
         <version>2.0.1.RELEASE</version>
     </parent>
 
-
     <modules>
         <module>quora-db</module>
         <module>quora-service</module>
