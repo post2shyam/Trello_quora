@@ -41,6 +41,7 @@ public class UserBusinessService {
         userEntity.setPassword(encryptedText[1]);
         return userDao.createUser(userEntity);
     }
+
     /**
      * the signin user method
      *
@@ -49,6 +50,7 @@ public class UserBusinessService {
      * @throws AuthenticationFailedException : If user not found or invalid password
      * @return UserAuthEntity access-token and singin response.
      */
+
     @Transactional(propagation = Propagation.REQUIRED)
     public UserAuthEntity signin(final String username, final String password) throws AuthenticationFailedException {
         UserEntity userEntity = userDao.getUserByUserName(username);
@@ -74,7 +76,7 @@ public class UserBusinessService {
         return userAuthEntity;
     }
 
-        // To check if the username exist in the database
+    // To check if the username exist in the database
     private boolean isUserNameInUse(final String userName) {
         return userDao.getUserByUserName(userName) != null;
     }
