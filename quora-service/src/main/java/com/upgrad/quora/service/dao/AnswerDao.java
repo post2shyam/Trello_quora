@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import java.util.List;
 
 @Repository
 public class AnswerDao {
@@ -54,6 +55,14 @@ public class AnswerDao {
     public AnswerEntity editAnswer(AnswerEntity answerEntity)
     {
         return entityManager.merge(answerEntity);
+    }
+
+    public List<AnswerEntity> getAllAnswersToQuestion(final String uuid) {
+        try {
+            return entityManager.createNamedQuery("allAnswersToQuestion", AnswerEntity.class).setParameter("questionUuid", uuid).getResultList();
+        } catch (NoResultException nre) {
+            return null;
+        }
     }
 
     public UserAuthEntity getUserAuthToken(final String accesstoken) {

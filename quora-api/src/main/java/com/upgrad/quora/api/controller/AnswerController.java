@@ -20,6 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -101,6 +103,32 @@ public class AnswerController {
                 .status("ANSWER EDITED");
 
         return new ResponseEntity<>(answerEditResponse,HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, path = "answer/all/{questionId}",  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<AnswerDetailsResponse>> getAllAnswersToQuestion(@PathVariable("questionId") final String questionId, @RequestHeader("authorization") final String authorization)
+            throws AuthorizationFailedException, InvalidQuestionException {
+
+        //Get question entity using id provided by the user
+        QuestionEntity questionEntity = questionBusinessService.getQuestionEntity(questionId);
+
+        // Fetch all answers for the provided question id
+        List<AnswerEntity> allAnswers  = answerBusinessService.getAllAnswersToQuestion(questionEntity , authorization);
+
+        List<AnswerDetailsResponse> allAnswersList = new ArrayList<>(allAnswers.size());
+        for (AnswerEntity answerEntity : allAnswers) {
+            AnswerDetailsResponse answerDetailsResponse = new AnswerDetailsResponse();
+            // Set answer's uuid
+            answerDetailsResponse.setId(answerEntity.getUuid());
+            // Set answer content
+            answerDetailsResponse.setAnswerContent(answerEntity.getAnswer());
+            // Set question content
+            answerDetailsResponse.setQuestionContent(questionEntity.getContent());
+
+            allAnswersList.add(answerDetailsResponse);
+        }
+        return new ResponseEntity<>(allAnswersList, HttpStatus.OK);
+
     }
 
 }
