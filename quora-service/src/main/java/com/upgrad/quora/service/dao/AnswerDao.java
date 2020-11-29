@@ -29,7 +29,7 @@ public class AnswerDao {
         }
     }
 
-    public Boolean isUserOwnerOfAnswer(String answerUuid, String userUuid) {
+    public Boolean isUserOwnerOfAnswer(final String answerUuid, final String userUuid) {
 
         try {
             AnswerEntity answerEntity = entityManager.createNamedQuery("validateOwnership", AnswerEntity.class).setParameter("answerUuid", answerUuid).setParameter("userUuid", userUuid).getSingleResult();
