@@ -25,4 +25,10 @@ public class QuestionBusinessService {
         questionEntity.setUser(userAuthToken.getUserEntity());
         return questionDao.createQuestion(questionEntity);
     }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public QuestionEntity getQuestionEntity(final String uuid) {
+        QuestionEntity questionEntity = questionDao.getQuestionByUUId(uuid);
+        return questionEntity;
+    }
 }
