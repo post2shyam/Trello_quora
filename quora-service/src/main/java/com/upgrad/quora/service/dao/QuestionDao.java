@@ -29,9 +29,9 @@ public class QuestionDao {
         }
     }
 
-    public List<QuestionEntity> getAllQuestions(final UserEntity userEntity) {
+    public List<QuestionEntity> getAllQuestions() {
         try {
-            return entityManager.createNamedQuery("allQuestions", QuestionEntity.class).setParameter("user", userEntity).getResultList();
+            return entityManager.createNamedQuery("allQuestions", QuestionEntity.class).getResultList();
         } catch (NoResultException nre) {
             return null;
         }

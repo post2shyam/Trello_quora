@@ -39,8 +39,6 @@ public class QuestionBusinessService {
         if (userAuthToken == null) {
             throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
         }
-
-        UserEntity userEntity = userAuthToken.getUserEntity();
-        return questionDao.getAllQuestions(userEntity);
+        return questionDao.getAllQuestions();
     }
 }
