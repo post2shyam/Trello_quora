@@ -3,7 +3,6 @@ package com.upgrad.quora.service.business;
 import com.upgrad.quora.service.dao.QuestionDao;
 import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.entity.UserAuthEntity;
-import com.upgrad.quora.service.entity.UserEntity;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,5 +39,13 @@ public class QuestionBusinessService {
             throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
         }
         return questionDao.getAllQuestions();
+    }
+
+    public List<QuestionEntity> getAllQuestionsByUser(final String userId, final String authorization) throws AuthorizationFailedException {
+        UserAuthEntity userAuthToken = questionDao.getUserAuthToken(authorization);
+        if (userAuthToken == null) {
+            throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
+        }
+        return questionDao.getAllQuestionsByUser(userId);
     }
 }

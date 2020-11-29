@@ -10,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -43,13 +40,24 @@ public class QuestionController {
 
     @RequestMapping(method = RequestMethod.GET, path = "/question/all", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestions(@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
-        List<QuestionEntity> allQuestions = questionBusinessService.getAllQuestions(authorization);
+        final List<QuestionEntity> allQuestions = questionBusinessService.getAllQuestions(authorization);
+        return prepareQuestionDetailResponse(allQuestions);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, path = "question/all/{userId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestionsByUser(@PathVariable("userId") final String userId,
+                                                                               @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
+        final List<QuestionEntity> allQuestions = questionBusinessService.getAllQuestionsByUser(userId, authorization);
+        return prepareQuestionDetailResponse(allQuestions);
+    }
+
+    private ResponseEntity<List<QuestionDetailsResponse>> prepareQuestionDetailResponse(final List<QuestionEntity> allQuestions) {
         List<QuestionDetailsResponse> allQuestionsRsp = new ArrayList<>(allQuestions.size());
         for (QuestionEntity quesEntity : allQuestions) {
             QuestionDetailsResponse questionDetailsResponse = new QuestionDetailsResponse();
             questionDetailsResponse.setId(quesEntity.getUuid());
             questionDetailsResponse.setContent(quesEntity.getContent());
-            
+
             allQuestionsRsp.add(questionDetailsResponse);
         }
         return new ResponseEntity<>(allQuestionsRsp, HttpStatus.OK);
