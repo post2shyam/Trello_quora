@@ -41,14 +41,17 @@ public class QuestionController {
         return new ResponseEntity<>(questionResponse, HttpStatus.CREATED);
     }
 
-//    @RequestMapping(method = RequestMethod.GET, path = "/question/all", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-//    public ResponseEntity<QuestionDetailsResponse> getAllQuestions(@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
-//        final QuestionEntity questionEntity = new QuestionEntity();
-//        List<QuestionEntity> allQuestions = questionBusinessService.getAllQuestions(authorization);
-//        List<QuestionDetailsResponse> allQuestionsRsp = new ArrayList<QuestionDetailsResponse>(allQuestions.size());
-//        for (QuestionEntity quesEntity : allQuestions) {
-//            QuestionResponse questionResponse = new QuestionResponse();
-//            questionResponse.s
-//        }
-//    }
+    @RequestMapping(method = RequestMethod.GET, path = "/question/all", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestions(@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
+        List<QuestionEntity> allQuestions = questionBusinessService.getAllQuestions(authorization);
+        List<QuestionDetailsResponse> allQuestionsRsp = new ArrayList<>(allQuestions.size());
+        for (QuestionEntity quesEntity : allQuestions) {
+            QuestionDetailsResponse questionDetailsResponse = new QuestionDetailsResponse();
+            questionDetailsResponse.setId(quesEntity.getUuid());
+            questionDetailsResponse.setContent(quesEntity.getContent());
+            
+            allQuestionsRsp.add(questionDetailsResponse);
+        }
+        return new ResponseEntity<>(allQuestionsRsp, HttpStatus.OK);
+    }
 }
