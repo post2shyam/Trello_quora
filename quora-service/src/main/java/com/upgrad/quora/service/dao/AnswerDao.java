@@ -51,6 +51,11 @@ public class AnswerDao {
         return answerEntity;
     }
 
+    public AnswerEntity editAnswer(AnswerEntity answerEntity)
+    {
+        return entityManager.merge(answerEntity);
+    }
+
     public UserAuthEntity getUserAuthToken(final String accesstoken) {
         try {
             return entityManager.createNamedQuery("userAuthByAccessToken", UserAuthEntity.class).setParameter("accessToken", accesstoken).getSingleResult();
