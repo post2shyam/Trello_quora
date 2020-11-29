@@ -33,7 +33,6 @@ public class AnswerBusinessService {
         return answerDao.createAnswer(answerEntity);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
     public AnswerEntity getAnswerbyUuid(final String uuid) {
         AnswerEntity answerEntity = answerDao.getAnswerByUuId(uuid);
         return answerEntity;
@@ -47,6 +46,12 @@ public class AnswerBusinessService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
+    public AnswerEntity editAnswer(AnswerEntity answerEntity)
+    {
+        AnswerEntity editedAnswer = answerDao.editAnswer(answerEntity);
+        return editedAnswer;
+    }
+
     public AnswerEntity validateAnswerEntity(AnswerEntity answerEntity, final String authorization)
             throws AuthorizationFailedException, AnswerNotFoundException {
 
@@ -62,8 +67,8 @@ public class AnswerBusinessService {
         UserEntity userEntity = userAuthToken.getUserEntity();
         Boolean isUserOwnerOfAnswer = answerDao.isUserOwnerOfAnswer(answerEntity.getUuid(), userEntity.getUuid());
 
-        if (isUserOwnerOfAnswer == false && userEntity.getRole() != "admin") {
-            throw new AuthorizationFailedException("ATHR-003","Only the answer owner can edit or delete the answer");
+        if (isUserOwnerOfAnswer == false) {
+            throw new AuthorizationFailedException("ATHR-003","Only the answer owner can edit the answer");
         }
         return answerEntity;
     }

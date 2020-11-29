@@ -1,9 +1,6 @@
 package com.upgrad.quora.api.controller;
 
-import com.upgrad.quora.api.model.AnswerDeleteResponse;
-import com.upgrad.quora.api.model.AnswerRequest;
-import com.upgrad.quora.api.model.AnswerResponse;
-import com.upgrad.quora.api.model.QuestionResponse;
+import com.upgrad.quora.api.model.*;
 import com.upgrad.quora.service.business.AnswerBusinessService;
 import com.upgrad.quora.service.business.QuestionBusinessService;
 import com.upgrad.quora.service.business.UserBusinessService;
@@ -74,7 +71,7 @@ public class AnswerController {
         //Fetch answer entity from answer id
         AnswerEntity answerEntity = answerBusinessService.getAnswerbyUuid(answerId);
 
-        //Check all validations and return the entity
+        //Check all validations for deleting the answer and return the entity
         AnswerEntity validatedAnswerEntity = answerBusinessService.validateAnswerEntity(answerEntity, authorization);
         //Delete answer
         AnswerEntity deletedAnswer = answerBusinessService.deleteAnswer(validatedAnswerEntity);
@@ -83,6 +80,27 @@ public class AnswerController {
                 .status("ANSWER DELETED");
 
         return new ResponseEntity<AnswerDeleteResponse>(answerDeleteResponse,HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.PUT, path = "/answer/edit/{answerId}", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<AnswerEditResponse> editAnswerContent(final AnswerEditRequest answerEditRequest, @PathVariable("answerId") final String answerId,
+                                                                @RequestHeader("authorization") final String authorization)
+            throws AuthorizationFailedException, AnswerNotFoundException {
+
+        //Fetch answer entity from answer id
+        AnswerEntity answerEntity = answerBusinessService.getAnswerbyUuid(answerId);
+        //Update answer entity content
+        answerEntity.setAnswer(answerEditRequest.getContent());
+
+        //Check all validations for editing an answer and return the entity
+        AnswerEntity validatedAnswerEntity = answerBusinessService.validateAnswerEntity(answerEntity, authorization);
+        //Persist Edit answer
+        AnswerEntity editedAnswer = answerBusinessService.editAnswer(validatedAnswerEntity);
+
+        AnswerEditResponse answerEditResponse = new AnswerEditResponse().id(editedAnswer.getUuid())
+                .status("ANSWER EDITED");
+
+        return new ResponseEntity<>(answerEditResponse,HttpStatus.OK);
     }
 
 }
