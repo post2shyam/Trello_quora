@@ -1,5 +1,6 @@
 package com.upgrad.quora.api.controller;
 
+import com.upgrad.quora.api.model.AnswerDeleteResponse;
 import com.upgrad.quora.api.model.AnswerRequest;
 import com.upgrad.quora.api.model.AnswerResponse;
 import com.upgrad.quora.api.model.QuestionResponse;
@@ -11,6 +12,7 @@ import com.upgrad.quora.service.entity.AnswerEntity;
 import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.entity.UserAuthEntity;
 import com.upgrad.quora.service.entity.UserEntity;
+import com.upgrad.quora.service.exception.AnswerNotFoundException;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.InvalidQuestionException;
 import com.upgrad.quora.service.exception.SignUpRestrictedException;
@@ -56,6 +58,31 @@ public class AnswerController {
         final AnswerEntity createdAnswerEntity = answerBusinessService.createAnswer(answerEntity,authorization);
         AnswerResponse answerResponse = new AnswerResponse().id(createdAnswerEntity.getUuid()).status("ANSWER CREATED");
         return new ResponseEntity<AnswerResponse>(answerResponse, HttpStatus.CREATED);
+    }
+
+    /**
+     * This method is to delete an answer. Only valid users(admin or owner) can delete the answers
+     *
+     * @return AnswerDeleteResponse - Answer delete model type
+     * @throws AuthorizationFailedException - if user does not exist in db
+     * @throws AnswerNotFoundException - if answer does not exists in db
+     */
+    @RequestMapping(method = RequestMethod.DELETE, path = "/answer/delete/{answerId}",  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<AnswerDeleteResponse> deleteAnswer(@PathVariable("answerId") final String answerId, @RequestHeader("authorization") final String authorization)
+            throws AuthorizationFailedException, AnswerNotFoundException {
+
+        //Fetch answer entity from answer id
+        AnswerEntity answerEntity = answerBusinessService.getAnswerbyUuid(answerId);
+
+        //Check all validations and return the entity
+        AnswerEntity validatedAnswerEntity = answerBusinessService.validateAnswerEntity(answerEntity, authorization);
+        //Delete answer
+        AnswerEntity deletedAnswer = answerBusinessService.deleteAnswer(validatedAnswerEntity);
+
+        AnswerDeleteResponse answerDeleteResponse = new AnswerDeleteResponse().id(deletedAnswer.getUuid())
+                .status("ANSWER DELETED");
+
+        return new ResponseEntity<AnswerDeleteResponse>(answerDeleteResponse,HttpStatus.OK);
     }
 
 }
