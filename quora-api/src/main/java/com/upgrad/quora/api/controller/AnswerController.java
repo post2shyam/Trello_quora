@@ -84,6 +84,13 @@ public class AnswerController {
         return new ResponseEntity<AnswerDeleteResponse>(answerDeleteResponse,HttpStatus.OK);
     }
 
+    /**
+     * This method is to edit an answer. Only valid users(owner) can edit the answer
+     *
+     * @return AnswerEditResponse - Answer edit model type
+     * @throws AuthorizationFailedException - if user does not exist in db
+     * @throws AnswerNotFoundException - if answer does not exists in db
+     */
     @RequestMapping(method = RequestMethod.PUT, path = "/answer/edit/{answerId}", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<AnswerEditResponse> editAnswerContent(final AnswerEditRequest answerEditRequest, @PathVariable("answerId") final String answerId,
                                                                 @RequestHeader("authorization") final String authorization)
@@ -105,11 +112,19 @@ public class AnswerController {
         return new ResponseEntity<>(answerEditResponse,HttpStatus.OK);
     }
 
+    /**
+     * This method is to get all answers for the question. Only authorised user can see it
+     *
+     * @return AnswerDetailsResponse - Answer details model type
+     * @throws AuthorizationFailedException - if user does not exist in db
+     * @throws InvalidQuestionException - if question does not exists in db
+     */
     @RequestMapping(method = RequestMethod.GET, path = "answer/all/{questionId}",  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<AnswerDetailsResponse>> getAllAnswersToQuestion(@PathVariable("questionId") final String questionId, @RequestHeader("authorization") final String authorization)
             throws AuthorizationFailedException, InvalidQuestionException {
 
         //Get question entity using id provided by the user
+        /** Need to implement InvalidQuestionException in question service class**/
         QuestionEntity questionEntity = questionBusinessService.getQuestionEntity(questionId);
 
         // Fetch all answers for the provided question id
