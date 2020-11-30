@@ -14,23 +14,23 @@ import org.springframework.web.context.request.WebRequest;
 public class RestExceptionHandler {
 
     @ExceptionHandler(AuthorizationFailedException.class)
-    public ResponseEntity<ErrorResponse> authenticationFailedException(AuthorizationFailedException exc, WebRequest request) {
+    public ResponseEntity<ErrorResponse> authenticationFailedException(final AuthorizationFailedException exc, final WebRequest request) {
         return new ResponseEntity<>(
                 new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.UNAUTHORIZED
         );
     }
 
     @ExceptionHandler(InvalidQuestionException.class)
-    public ResponseEntity<ErrorResponse> authenticationFailedException(InvalidQuestionException exc, WebRequest request) {
+    public ResponseEntity<ErrorResponse> authenticationFailedException(final InvalidQuestionException exc, final WebRequest request) {
         return new ResponseEntity<>(
-                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.UNAUTHORIZED
+                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.NOT_FOUND
         );
     }
 
     @ExceptionHandler(AnswerNotFoundException.class)
-    public ResponseEntity<ErrorResponse> authenticationFailedException(AnswerNotFoundException exc, WebRequest request) {
+    public ResponseEntity<ErrorResponse> authenticationFailedException(final AnswerNotFoundException exc, final WebRequest request) {
         return new ResponseEntity<>(
-                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.UNAUTHORIZED
+                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.NOT_FOUND
         );
     }
 
