@@ -46,4 +46,10 @@ public class RestExceptionHandler {
         );
     }
 
+    @ExceptionHandler(SignOutRestrictedException.class)
+    public ResponseEntity<ErrorResponse> authenticationFailedException(SignOutRestrictedException exc, WebRequest request) {
+        return new ResponseEntity<>(
+                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.UNAUTHORIZED
+        );
+    }
 }
