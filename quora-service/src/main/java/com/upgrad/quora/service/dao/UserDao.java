@@ -78,4 +78,18 @@ public class UserDao {
     public void updateUserEntity(final UserEntity updatedUserEntity) {
         entityManager.merge(updatedUserEntity);
     }
+
+    /**
+     * Method to delete user by id
+     *
+     * @param userId : username which you want to delete
+     * @return deleted response
+     */
+    public UserEntity deleteUser(final String userId) {
+        UserEntity deleteUser = getUserById(userId);
+        if (deleteUser != null) {
+            this.entityManager.remove(deleteUser);
+        }
+        return deleteUser;
+    }
 }
