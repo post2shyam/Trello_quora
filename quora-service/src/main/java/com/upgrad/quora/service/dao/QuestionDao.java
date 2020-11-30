@@ -81,4 +81,10 @@ public class QuestionDao {
             return null;
         }
     }
+
+    public QuestionEntity deleteQuestion(final String questionId) {
+        final QuestionEntity questionEntity = getQuestionByUUId(questionId);
+        entityManager.remove(questionEntity);
+        return questionEntity;
+    }
 }

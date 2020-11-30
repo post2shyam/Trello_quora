@@ -1,5 +1,6 @@
 package com.upgrad.quora.api.controller;
 
+import com.upgrad.quora.api.model.QuestionDeleteResponse;
 import com.upgrad.quora.api.model.QuestionDetailsResponse;
 import com.upgrad.quora.api.model.QuestionRequest;
 import com.upgrad.quora.api.model.QuestionResponse;
@@ -27,8 +28,8 @@ public class QuestionController {
     /**
      * This method is to create an question for user. Login is needed in order to access this endpoint.
      *
-     * @param questionRequest  - question for which answer is seeked
-     * @param authorization - logged in user
+     * @param questionRequest - question for which answer is seeked
+     * @param authorization   - logged in user
      * @return Answer to the question
      * @throws AuthorizationFailedException - if the user fails to authenticate
      */
@@ -61,7 +62,8 @@ public class QuestionController {
 
     /**
      * Return all questions belonging to a particular user
-     * @param userId - userId of the user whose question list is to be fetched
+     *
+     * @param userId        - userId of the user whose question list is to be fetched
      * @param authorization - logged in user
      * @return - list of questions belonging to asked user
      * @throws AuthorizationFailedException - if the user is not authenticated
@@ -71,6 +73,14 @@ public class QuestionController {
                                                                                @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
         final List<QuestionEntity> allQuestions = questionBusinessService.getAllQuestionsByUser(userId, authorization);
         return prepareQuestionDetailResponse(allQuestions);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, path = "/question/delete/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<QuestionDeleteResponse> deleteQuestion(@PathVariable("questionId") final String questionId,
+                                                                 @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
+        final QuestionEntity questionEntity = questionBusinessService.deleteQuestion(questionId, authorization);
+        QuestionDeleteResponse questionDeleteResponse = new QuestionDeleteResponse().id(questionEntity.getUuid()).status("Question deleted successfully");
+        return new ResponseEntity<>(questionDeleteResponse, HttpStatus.NO_CONTENT);
     }
 
     private ResponseEntity<List<QuestionDetailsResponse>> prepareQuestionDetailResponse(final List<QuestionEntity> allQuestions) {
