@@ -82,6 +82,15 @@ public class QuestionController {
     }
 
 
+    /**
+     * To edit content of an existing question
+     * @param questionId - question id of the question to be edited
+     * @param questionEditRequest - carries the new content
+     * @param authorization - logged-in user
+     * @return
+     * @throws AuthorizationFailedException - if the user is not logged-in
+     * @throws InvalidQuestionException - if the question dont exist
+     */
     @RequestMapping(method = RequestMethod.PUT, path = "/question/edit/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<QuestionEditResponse> editQuestionContent(@PathVariable("questionId") final String questionId,
                                                                     final QuestionEditRequest questionEditRequest,

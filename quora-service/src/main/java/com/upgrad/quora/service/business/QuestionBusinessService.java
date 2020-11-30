@@ -82,6 +82,12 @@ public class QuestionBusinessService {
         return questionDao.deleteQuestion(questionId);
     }
 
+    /**
+     * Persist the question with new content
+     *
+     * @param questionEntity - question entity carrying the new content
+     * @return question entity after successfully persisting
+     */
     @Transactional(propagation = Propagation.REQUIRED)
     public QuestionEntity editQuestionContent(final QuestionEntity questionEntity) {
         return questionDao.editQuestionContent(questionEntity);
