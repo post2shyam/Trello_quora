@@ -21,8 +21,15 @@ public class AnswerBusinessService {
     @Autowired
     private AnswerDao answerDao;
 
+    /**
+     * @param answerEntity
+     * @param authorization
+     * @return
+     * @throws AuthorizationFailedException
+     * @throws InvalidQuestionException
+     */
     @Transactional(propagation = Propagation.REQUIRED)
-    public AnswerEntity createAnswer(AnswerEntity answerEntity, final String authorization)
+    public AnswerEntity createAnswer(final AnswerEntity answerEntity, final String authorization)
             throws AuthorizationFailedException, InvalidQuestionException {
         UserAuthEntity userAuthToken = answerDao.getUserAuthToken(authorization);
         if (userAuthToken == null) {
@@ -35,52 +42,71 @@ public class AnswerBusinessService {
         return answerDao.createAnswer(answerEntity);
     }
 
+    /**
+     * @param uuid
+     * @return
+     */
     public AnswerEntity getAnswerbyUuid(final String uuid) {
-        AnswerEntity answerEntity = answerDao.getAnswerByUuId(uuid);
-        return answerEntity;
+        return answerDao.getAnswerByUuId(uuid);
     }
 
+    /**
+     * @param answerEntity
+     * @return
+     */
     @Transactional(propagation = Propagation.REQUIRED)
-    public AnswerEntity deleteAnswer(AnswerEntity answerEntity)
-    {
+    public AnswerEntity deleteAnswer(final AnswerEntity answerEntity) {
         AnswerEntity deletedAnswer = answerDao.deleteAnswer(answerEntity);
         return deletedAnswer;
     }
 
+    /**
+     * @param answerEntity
+     * @return
+     */
     @Transactional(propagation = Propagation.REQUIRED)
-    public AnswerEntity editAnswer(AnswerEntity answerEntity)
-    {
-        AnswerEntity editedAnswer = answerDao.editAnswer(answerEntity);
-        return editedAnswer;
+    public AnswerEntity editAnswer(final AnswerEntity answerEntity) {
+        return answerDao.editAnswer(answerEntity);
     }
 
-    public List<AnswerEntity> getAllAnswersToQuestion(QuestionEntity questionEntity, final String authorization)
+    /**
+     * @param questionEntity
+     * @param authorization
+     * @return
+     * @throws AuthorizationFailedException
+     */
+    public List<AnswerEntity> getAllAnswersToQuestion(final QuestionEntity questionEntity, final String authorization)
             throws AuthorizationFailedException {
-        UserAuthEntity userAuthToken = answerDao.getUserAuthToken(authorization);
+        final UserAuthEntity userAuthToken = answerDao.getUserAuthToken(authorization);
         if (userAuthToken == null) {
             throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
         }
-        List<AnswerEntity> answerEntityList = answerDao.getAllAnswersToQuestion(questionEntity.getUuid());
-        return answerEntityList;
+        return answerDao.getAllAnswersToQuestion(questionEntity.getUuid());
     }
 
-    public AnswerEntity validateAnswerEntity(AnswerEntity answerEntity, final String authorization)
+    /**
+     * @param answerEntity
+     * @param authorization
+     * @return
+     * @throws AuthorizationFailedException
+     * @throws AnswerNotFoundException
+     */
+    public AnswerEntity validateAnswerEntity(final AnswerEntity answerEntity, final String authorization)
             throws AuthorizationFailedException, AnswerNotFoundException {
-
         if (answerEntity == null) {
-            throw new AuthorizationFailedException("ANS-001", "Entered answer uuid does not exist");
+            throw new AnswerNotFoundException("ANS-001", "Entered answer uuid does not exist");
         }
 
-        UserAuthEntity userAuthToken = answerDao.getUserAuthToken(authorization);
+        final UserAuthEntity userAuthToken = answerDao.getUserAuthToken(authorization);
         if (userAuthToken == null) {
             throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
         }
 
-        UserEntity userEntity = userAuthToken.getUserEntity();
-        Boolean isUserOwnerOfAnswer = answerDao.isUserOwnerOfAnswer(answerEntity.getUuid(), userEntity.getUuid());
+        final UserEntity userEntity = userAuthToken.getUserEntity();
+        final Boolean isUserOwnerOfAnswer = answerDao.isUserOwnerOfAnswer(answerEntity.getUuid(), userEntity.getUuid());
 
-        if (isUserOwnerOfAnswer == false) {
-            throw new AuthorizationFailedException("ATHR-003","Only the answer owner can edit the answer");
+        if (!isUserOwnerOfAnswer) {
+            throw new AuthorizationFailedException("ATHR-003", "Only the answer owner can edit the answer");
         }
         return answerEntity;
     }
