@@ -28,7 +28,7 @@ public class UserAuthDao {
         }
     }
     /**
-     * Persists user authen entity in database.
+     * Persists user auth entity in database.
      *
      * @param userAuthEntity to be persisted in the DB.
      * @return UserAuthEntity
