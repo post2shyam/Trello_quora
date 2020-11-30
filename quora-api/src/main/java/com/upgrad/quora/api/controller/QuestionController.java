@@ -1,12 +1,10 @@
 package com.upgrad.quora.api.controller;
 
-import com.upgrad.quora.api.model.QuestionDeleteResponse;
-import com.upgrad.quora.api.model.QuestionDetailsResponse;
-import com.upgrad.quora.api.model.QuestionRequest;
-import com.upgrad.quora.api.model.QuestionResponse;
+import com.upgrad.quora.api.model.*;
 import com.upgrad.quora.service.business.QuestionBusinessService;
 import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
+import com.upgrad.quora.service.exception.InvalidQuestionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -43,7 +41,7 @@ public class QuestionController {
         questionEntity.setContent(questionRequest.getContent());
 
         final QuestionEntity createdQuestionEntity = questionBusinessService.createQuestion(questionEntity, authorization);
-        QuestionResponse questionResponse = new QuestionResponse().id(createdQuestionEntity.getUuid()).status("Question created successfully");
+        final QuestionResponse questionResponse = new QuestionResponse().id(createdQuestionEntity.getUuid()).status("Question created successfully");
         return new ResponseEntity<>(questionResponse, HttpStatus.CREATED);
     }
 
@@ -79,12 +77,30 @@ public class QuestionController {
     public ResponseEntity<QuestionDeleteResponse> deleteQuestion(@PathVariable("questionId") final String questionId,
                                                                  @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
         final QuestionEntity questionEntity = questionBusinessService.deleteQuestion(questionId, authorization);
-        QuestionDeleteResponse questionDeleteResponse = new QuestionDeleteResponse().id(questionEntity.getUuid()).status("Question deleted successfully");
+        final QuestionDeleteResponse questionDeleteResponse = new QuestionDeleteResponse().id(questionEntity.getUuid()).status("Question deleted successfully");
         return new ResponseEntity<>(questionDeleteResponse, HttpStatus.NO_CONTENT);
     }
 
+
+    @RequestMapping(method = RequestMethod.PUT, path = "/question/edit/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<QuestionEditResponse> editQuestionContent(@PathVariable("questionId") final String questionId,
+                                                                    final QuestionEditRequest questionEditRequest,
+                                                                    @RequestHeader("authorization") final String authorization)
+            throws AuthorizationFailedException, InvalidQuestionException {
+        //Fetch the existing question
+        final QuestionEntity questionEntity = questionBusinessService.getQuestionEntity(questionId, authorization);
+
+        //Update the contents
+        questionEntity.setContent(questionEditRequest.getContent());
+        questionBusinessService.editQuestionContent(questionEntity);
+
+        //Prepare the HTTP response and return
+        final QuestionEditResponse questionEditResponse = new QuestionEditResponse().id(questionEntity.getUuid()).status("Question updated successfully");
+        return new ResponseEntity<>(questionEditResponse, HttpStatus.OK);
+    }
+
     private ResponseEntity<List<QuestionDetailsResponse>> prepareQuestionDetailResponse(final List<QuestionEntity> allQuestions) {
-        List<QuestionDetailsResponse> allQuestionsRsp = new ArrayList<>(allQuestions.size());
+        final List<QuestionDetailsResponse> allQuestionsRsp = new ArrayList<>(allQuestions.size());
         for (QuestionEntity quesEntity : allQuestions) {
             QuestionDetailsResponse questionDetailsResponse = new QuestionDetailsResponse();
             questionDetailsResponse.setId(quesEntity.getUuid());

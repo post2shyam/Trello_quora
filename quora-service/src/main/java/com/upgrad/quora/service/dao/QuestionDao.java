@@ -93,4 +93,9 @@ public class QuestionDao {
         entityManager.remove(questionEntity);
         return questionEntity;
     }
+
+    public QuestionEntity editQuestionContent(final QuestionEntity questionEntity) {
+        entityManager.merge(questionEntity);
+        return questionEntity;
+    }
 }
