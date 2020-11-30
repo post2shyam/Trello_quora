@@ -5,6 +5,8 @@ import com.upgrad.quora.service.dao.UserDao;
 import com.upgrad.quora.service.entity.UserAuthEntity;
 import com.upgrad.quora.service.entity.UserEntity;
 import com.upgrad.quora.service.exception.AuthenticationFailedException;
+import com.upgrad.quora.service.exception.AuthorizationFailedException;
+import com.upgrad.quora.service.exception.SignOutRestrictedException;
 import com.upgrad.quora.service.exception.SignUpRestrictedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,12 @@ public class UserBusinessService {
 
     @Autowired
     private PasswordCryptographyProvider cryptographyProvider;
+
+    /**
+     * SignUp method for users and add salt, encryption to password
+     *
+     * @throws SignUpRestrictedException : throw exception if user already exists
+     */
 
     @Transactional(propagation = Propagation.REQUIRED)
     public UserEntity signup(UserEntity userEntity) throws SignUpRestrictedException {
@@ -58,7 +66,7 @@ public class UserBusinessService {
             throw new AuthenticationFailedException("ATH-001", "This username does not exist");
         }
         final String encryptedPassword = cryptographyProvider.encrypt(password, userEntity.getSalt());
-        if (!encryptedPassword.equals(userEntity.getPassword())) {
+        if(!encryptedPassword.equals(userEntity.getPassword())) {
             throw new AuthenticationFailedException("ATH-002", "Password failed");
         }
         JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(encryptedPassword);
@@ -74,6 +82,24 @@ public class UserBusinessService {
         userAuthDao.createAuthToken(userAuthEntity);
         userDao.updateUserEntity(userEntity);
         return userAuthEntity;
+    }
+
+    /**
+     * The signout method
+     *
+     * @param accessToken : required to signout the user
+     * @throws SignOutRestrictedException : if the access-token is not found in the DB.
+     * @return UserEntity : that user is signed out.
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    public UserEntity signout(final String accessToken) throws SignOutRestrictedException {
+        UserAuthEntity userAuthEntity = userAuthDao.getUserAuthByToken(accessToken);
+        if(userAuthEntity == null) {
+            throw new SignOutRestrictedException("SGR-001", "User is not Signed in");
+        }
+        userAuthEntity.setLogoutAt(ZonedDateTime.now());
+        userAuthDao.updateUserAuth(userAuthEntity);
+        return userAuthEntity.getUserEntity();
     }
 
     // To check if the username exist in the database
