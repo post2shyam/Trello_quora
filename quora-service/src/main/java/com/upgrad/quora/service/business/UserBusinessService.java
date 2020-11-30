@@ -58,7 +58,7 @@ public class UserBusinessService {
             throw new AuthenticationFailedException("ATH-001", "This username does not exist");
         }
         final String encryptedPassword = cryptographyProvider.encrypt(password, userEntity.getSalt());
-        if (!encryptedPassword.equals(userEntity.getPassword())) {
+        if(!encryptedPassword.equals(userEntity.getPassword())) {
             throw new AuthenticationFailedException("ATH-002", "Password failed");
         }
         JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(encryptedPassword);
