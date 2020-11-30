@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class AnswerBusinessService {
 
@@ -50,6 +52,16 @@ public class AnswerBusinessService {
     {
         AnswerEntity editedAnswer = answerDao.editAnswer(answerEntity);
         return editedAnswer;
+    }
+
+    public List<AnswerEntity> getAllAnswersToQuestion(QuestionEntity questionEntity, final String authorization)
+            throws AuthorizationFailedException {
+        UserAuthEntity userAuthToken = answerDao.getUserAuthToken(authorization);
+        if (userAuthToken == null) {
+            throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
+        }
+        List<AnswerEntity> answerEntityList = answerDao.getAllAnswersToQuestion(questionEntity.getUuid());
+        return answerEntityList;
     }
 
     public AnswerEntity validateAnswerEntity(AnswerEntity answerEntity, final String authorization)
