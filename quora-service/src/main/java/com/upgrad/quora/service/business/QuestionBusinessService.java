@@ -55,10 +55,7 @@ public class QuestionBusinessService {
      * @throws AuthorizationFailedException - if the user is not authenticated.
      */
     public List<QuestionEntity> getAllQuestions(final String authorization) throws AuthorizationFailedException {
-        UserAuthEntity userAuthToken = questionDao.getUserAuthToken(authorization);
-        if (userAuthToken == null) {
-            throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
-        }
+        isUserAuthenticated(authorization);
         return questionDao.getAllQuestions();
     }
 
@@ -71,10 +68,20 @@ public class QuestionBusinessService {
      * @throws AuthorizationFailedException - if the user is not authenticated.
      */
     public List<QuestionEntity> getAllQuestionsByUser(final String userId, final String authorization) throws AuthorizationFailedException {
+        isUserAuthenticated(authorization);
+        return questionDao.getAllQuestionsByUser(userId);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public QuestionEntity deleteQuestion(final String questionId, final String authorization) throws AuthorizationFailedException {
+        isUserAuthenticated(authorization);
+        return questionDao.deleteQuestion(questionId);
+    }
+
+    private void isUserAuthenticated(String authorization) throws AuthorizationFailedException {
         UserAuthEntity userAuthToken = questionDao.getUserAuthToken(authorization);
         if (userAuthToken == null) {
             throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
         }
-        return questionDao.getAllQuestionsByUser(userId);
     }
 }
