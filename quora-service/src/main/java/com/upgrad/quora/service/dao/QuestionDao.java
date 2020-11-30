@@ -82,6 +82,12 @@ public class QuestionDao {
         }
     }
 
+    /**
+     * Deletes question with a given uuId
+     *
+     * @param questionId - of the question to be deleted
+     * @return question that has been deleted.
+     */
     public QuestionEntity deleteQuestion(final String questionId) {
         final QuestionEntity questionEntity = getQuestionByUUId(questionId);
         entityManager.remove(questionEntity);

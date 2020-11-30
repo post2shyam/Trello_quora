@@ -78,7 +78,6 @@ public class QuestionBusinessService {
         return questionDao.deleteQuestion(questionId);
     }
 
-
     private void isUserAuthenticated(String authorization) throws AuthorizationFailedException {
         UserAuthEntity userAuthToken = questionDao.getUserAuthToken(authorization);
         if (userAuthToken == null) {
