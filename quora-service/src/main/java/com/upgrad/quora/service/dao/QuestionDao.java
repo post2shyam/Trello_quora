@@ -15,11 +15,24 @@ public class QuestionDao {
     @PersistenceContext
     private EntityManager entityManager;
 
+    /**
+     * This method persists a new question to db
+     *
+     * @param questionEntity - question which has to be persisted to db
+     * @return - question which is persisted
+     */
     public QuestionEntity createQuestion(final QuestionEntity questionEntity) {
         entityManager.persist(questionEntity);
         return questionEntity;
     }
 
+
+    /**
+     * Fetch question from db of a given id.
+     *
+     * @param uuid - id of question to be fetched from db
+     * @return question
+     */
     public QuestionEntity getQuestionByUUId(final String uuid) {
         try {
             return entityManager.createNamedQuery("questionById", QuestionEntity.class).setParameter("questionUUId", uuid).getSingleResult();
@@ -28,6 +41,12 @@ public class QuestionDao {
         }
     }
 
+    /**
+     * Return list of questions belonging to a user.
+     *
+     * @param uuid - user for which the question-list is to fetched
+     * @return list of questions
+     */
     public List<QuestionEntity> getAllQuestionsByUser(final String userUuid) {
         try {
             return entityManager.createNamedQuery("allQuestionsByUser", QuestionEntity.class).setParameter("userUuid", userUuid).getResultList();
@@ -36,6 +55,11 @@ public class QuestionDao {
         }
     }
 
+    /**
+     * Return list of all questions in db
+     *
+     * @return list of questions
+     */
     public List<QuestionEntity> getAllQuestions() {
         try {
             return entityManager.createNamedQuery("allQuestions", QuestionEntity.class).getResultList();
@@ -44,6 +68,12 @@ public class QuestionDao {
         }
     }
 
+    /**
+     * Returns user belonging to the access token from db
+     *
+     * @param accesstoken - token of user which has to be fetched from db
+     * @return - user
+     */
     public UserAuthEntity getUserAuthToken(final String accesstoken) {
         try {
             return entityManager.createNamedQuery("userAuthByAccessToken", UserAuthEntity.class).setParameter("accessToken", accesstoken).getSingleResult();

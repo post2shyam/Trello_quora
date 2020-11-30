@@ -24,6 +24,14 @@ public class QuestionController {
     @Autowired
     private QuestionBusinessService questionBusinessService;
 
+    /**
+     * This method is to create an question for user. Login is needed in order to access this endpoint.
+     *
+     * @param questionRequest  - question for which answer is seeked
+     * @param authorization - logged in user
+     * @return Answer to the question
+     * @throws AuthorizationFailedException - if the user fails to authenticate
+     */
     @RequestMapping(method = RequestMethod.POST, path = "/question/create",
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<QuestionResponse> createQuestion(final QuestionRequest questionRequest,
@@ -38,12 +46,26 @@ public class QuestionController {
         return new ResponseEntity<>(questionResponse, HttpStatus.CREATED);
     }
 
+    /**
+     * Returns all questions of the database
+     *
+     * @param authorization - logged in user
+     * @return - all the questions in the database
+     * @throws AuthorizationFailedException - if the user is not authenticated
+     */
     @RequestMapping(method = RequestMethod.GET, path = "/question/all", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestions(@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
         final List<QuestionEntity> allQuestions = questionBusinessService.getAllQuestions(authorization);
         return prepareQuestionDetailResponse(allQuestions);
     }
 
+    /**
+     * Return all questions belonging to a particular user
+     * @param userId - userId of the user whose question list is to be fetched
+     * @param authorization - logged in user
+     * @return - list of questions belonging to asked user
+     * @throws AuthorizationFailedException - if the user is not authenticated
+     */
     @RequestMapping(method = RequestMethod.GET, path = "question/all/{userId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestionsByUser(@PathVariable("userId") final String userId,
                                                                                @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
