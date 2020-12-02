@@ -19,6 +19,7 @@ public class UserAuthDao {
      */
     public UserAuthEntity getUserAuthByToken(final String accessToken) {
         try {
+            System.out.println("accessToken Dao ===>" + accessToken);
             return entityManager
                     .createNamedQuery("userAuthByAccessToken", UserAuthEntity.class)
                     .setParameter("accessToken", accessToken)
@@ -28,7 +29,7 @@ public class UserAuthDao {
         }
     }
     /**
-     * Persists user authen entity in database.
+     * Persists user auth entity in database.
      *
      * @param userAuthEntity to be persisted in the DB.
      * @return UserAuthEntity
