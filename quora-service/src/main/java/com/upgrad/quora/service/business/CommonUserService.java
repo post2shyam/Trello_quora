@@ -21,20 +21,16 @@ public class CommonUserService {
     private UserAuthDao userAuthDao;
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public UserEntity getUserProfile(final String userUuid, final String authorizationToken)
-            throws AuthorizationFailedException,
-            UserNotFoundException {
-
+    public UserEntity getUserProfile(final String userUuid, final String authorizationToken) throws AuthorizationFailedException, UserNotFoundException {
         UserAuthEntity userAuthEntity = userAuthDao.getUserAuthByToken(authorizationToken);
         UserEntity userEntity = userDao.getUserById(userUuid);
         if(userAuthEntity == null) {
             throw new AuthorizationFailedException("ATHR-001", "User has not signed in.");
-        }else if (userAuthEntity.getLogoutAt() != null || userAuthEntity.getExpiresAt()
-                .isAfter(ZonedDateTime.now())) {
+        }else if(userAuthEntity.getLogoutAt() != null) {
             throw new AuthorizationFailedException("ATHR-002", "User is signed out. Sign in first to get user details.");
-        } else if (userEntity == null) {
+        }else if(userEntity == null) {
             throw new UserNotFoundException("USR-001", "User with entered uuid does not exist");
-        } else {
+        }else{
             return userEntity;
         }
     }

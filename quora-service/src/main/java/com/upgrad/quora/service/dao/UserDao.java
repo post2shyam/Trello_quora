@@ -55,16 +55,13 @@ public class UserDao {
     /**
      * Fetch a single user by given id from the DB.
      *
-     * @param userId Id of the user whose information is to be fetched.
+     * @param uuid Id of the user whose information is to be fetched.
      * @return User details if exist in the DB else null.
      */
-    public UserEntity getUserById(final String userId) {
-        try {
-            return entityManager
-                    .createNamedQuery("userByUserId", UserEntity.class)
-                    .setParameter("userId", userId)
-                    .getSingleResult();
-        } catch (NoResultException nre) {
+    public UserEntity getUserById(final String uuid) {
+        try{
+            return entityManager.createNamedQuery("userByUserId", UserEntity.class).setParameter("uuid", uuid).getSingleResult();
+        }catch (NoResultException nre) {
             return null;
         }
     }
