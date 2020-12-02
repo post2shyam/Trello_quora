@@ -39,7 +39,7 @@ public class RestExceptionHandler {
     public ResponseEntity<ErrorResponse> signupRestrictedExceptionHandler(final SignUpRestrictedException exc,
                                                                           final WebRequest request) {
         return new ResponseEntity<>(
-                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.UNAUTHORIZED
+                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.UNPROCESSABLE_ENTITY
         );
     }
 
@@ -52,18 +52,9 @@ public class RestExceptionHandler {
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponse> userNotFoundException(final UserNotFoundException exc,
-                                                               final WebRequest request) {
+    public ResponseEntity<ErrorResponse> authenticationFailedException(UserNotFoundException exc, WebRequest request) {
         return new ResponseEntity<>(
                 new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.NOT_FOUND
-        );
-    }
-
-    @ExceptionHandler(AuthorizationFailedException.class)
-    public ResponseEntity<ErrorResponse> authorizationFailedException(final AuthorizationFailedException exc,
-                                                                      final WebRequest request) {
-        return new ResponseEntity<>(
-                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.UNAUTHORIZED
         );
     }
 }
