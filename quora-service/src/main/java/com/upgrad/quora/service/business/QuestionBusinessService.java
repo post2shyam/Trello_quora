@@ -4,6 +4,7 @@ import com.upgrad.quora.service.dao.QuestionDao;
 import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.entity.UserAuthEntity;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
+import com.upgrad.quora.service.exception.InvalidQuestionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -42,10 +43,13 @@ public class QuestionBusinessService {
      * @param uuid - id of the question which has to be fetched from db
      * @return - asked question
      */
-    public QuestionEntity getQuestionEntity(final String uuid) {
-        QuestionEntity questionEntity = questionDao.getQuestionByUUId(uuid);
-        return questionEntity;
+    public QuestionEntity getQuestionEntity(final String uuid, final String authorization)
+            throws AuthorizationFailedException, InvalidQuestionException {
+        isUserAuthenticated(authorization);
+        doesQuestionExist(uuid);
+        return questionDao.getQuestionByUUId(uuid);
     }
+
 
     /**
      * Returns all questions from the database
@@ -78,10 +82,29 @@ public class QuestionBusinessService {
         return questionDao.deleteQuestion(questionId);
     }
 
-    private void isUserAuthenticated(String authorization) throws AuthorizationFailedException {
+    /**
+     * Persist the question with new content
+     *
+     * @param questionEntity - question entity carrying the new content
+     * @return question entity after successfully persisting
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    public QuestionEntity editQuestionContent(final QuestionEntity questionEntity) {
+        return questionDao.editQuestionContent(questionEntity);
+    }
+
+    private void isUserAuthenticated(final String authorization) throws AuthorizationFailedException {
         UserAuthEntity userAuthToken = questionDao.getUserAuthToken(authorization);
         if (userAuthToken == null) {
             throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
         }
     }
+
+    private void doesQuestionExist(final String questionId) throws InvalidQuestionException {
+        QuestionEntity questionEntity = questionDao.getQuestionByUUId(questionId);
+        if (questionEntity == null) {
+            throw new InvalidQuestionException("QUES-001", "Entered question uuid does not exist");
+        }
+    }
+
 }

@@ -34,7 +34,7 @@ public class UserBusinessService {
      */
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public UserEntity signup(UserEntity userEntity) throws SignUpRestrictedException {
+    public UserEntity signup(final UserEntity userEntity) throws SignUpRestrictedException {
         if(isUserNameInUse(userEntity.getUserName())) {
             throw new SignUpRestrictedException("SGR-001","Try any other Username, this Username has already been taken");
         }
@@ -106,6 +106,7 @@ public class UserBusinessService {
     private boolean isUserNameInUse(final String userName) {
         return userDao.getUserByUserName(userName) != null;
     }
+
     // To check if the email exist in the database
     private boolean isEmailInUse(final String email) {
         return userDao.getUserByEmail(email) != null;

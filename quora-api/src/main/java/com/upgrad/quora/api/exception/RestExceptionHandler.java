@@ -12,44 +12,42 @@ import org.springframework.web.context.request.WebRequest;
 public class RestExceptionHandler {
 
     @ExceptionHandler(AuthorizationFailedException.class)
-    public ResponseEntity<ErrorResponse> authenticationFailedException(AuthorizationFailedException exc, WebRequest request) {
+    public ResponseEntity<ErrorResponse> authenticationFailedExceptionHandler(final AuthorizationFailedException exc,
+                                                                              final WebRequest request) {
         return new ResponseEntity<>(
                 new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.UNAUTHORIZED
         );
     }
 
     @ExceptionHandler(InvalidQuestionException.class)
-    public ResponseEntity<ErrorResponse> authenticationFailedException(InvalidQuestionException exc, WebRequest request) {
+    public ResponseEntity<ErrorResponse> invalidQuestionExceptionHandler(final InvalidQuestionException exc,
+                                                                         final WebRequest request) {
         return new ResponseEntity<>(
-                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.UNAUTHORIZED
+                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.UNPROCESSABLE_ENTITY
         );
     }
 
     @ExceptionHandler(AnswerNotFoundException.class)
-    public ResponseEntity<ErrorResponse> authenticationFailedException(AnswerNotFoundException exc, WebRequest request) {
+    public ResponseEntity<ErrorResponse> answerNotFoundExceptionHandler(final AnswerNotFoundException exc,
+                                                                        final WebRequest request) {
         return new ResponseEntity<>(
-                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.UNAUTHORIZED
-        );
-    }
-
-    @ExceptionHandler(AuthenticationFailedException.class)
-    public ResponseEntity<ErrorResponse> authenticationFailedException(AuthenticationFailedException exc, WebRequest request) {
-        return new ResponseEntity<>(
-                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.UNAUTHORIZED
+                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.UNPROCESSABLE_ENTITY
         );
     }
 
     @ExceptionHandler(SignUpRestrictedException.class)
-    public ResponseEntity<ErrorResponse> authenticationFailedException(SignUpRestrictedException exc, WebRequest request) {
+    public ResponseEntity<ErrorResponse> signupRestrictedExceptionHandler(final SignUpRestrictedException exc,
+                                                                          final WebRequest request) {
         return new ResponseEntity<>(
-                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.UNAUTHORIZED
+                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.UNPROCESSABLE_ENTITY
         );
     }
 
     @ExceptionHandler(SignOutRestrictedException.class)
-    public ResponseEntity<ErrorResponse> authenticationFailedException(SignOutRestrictedException exc, WebRequest request) {
+    public ResponseEntity<ErrorResponse> signOutRestrictedExceptionHandler(final SignOutRestrictedException exc,
+                                                                           final WebRequest request) {
         return new ResponseEntity<>(
-                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.UNAUTHORIZED
+                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.FORBIDDEN
         );
     }
 
