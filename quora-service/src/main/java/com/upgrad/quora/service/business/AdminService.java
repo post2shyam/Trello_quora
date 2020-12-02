@@ -31,22 +31,21 @@ public class AdminService {
             throws AuthorizationFailedException, UserNotFoundException {
         UserAuthEntity userAuthEntity = this.userAuthDao.getUserAuthByToken(accessToken);
 
-        if (userAuthEntity == null) {
+        if(userAuthEntity == null) {
             throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
         }
 
-        if (userAuthEntity.getLogoutAt() != null) {
+        if(userAuthEntity.getLogoutAt() != null) {
             throw new AuthorizationFailedException("ATHR-002", "User is signed out");
         }
 
-        if (!userAuthEntity.getUserEntity().getRole().equals("admin")) {
-            throw new AuthorizationFailedException(
-                    "ATHR-003", "Unauthorized Access, Entered user is not an admin");
+        if(!userAuthEntity.getUserEntity().getRole().equals("admin")) {
+            throw new AuthorizationFailedException("ATHR-003", "Unauthorized Access, Entered user is not an admin");
         }
 
         UserEntity existingUser = this.userDao.getUserById(userId);
 
-        if (existingUser == null) {
+        if(existingUser == null) {
             throw new UserNotFoundException(
                     "USR-001", "User with entered uuid to be deleted does not exist");
         }
