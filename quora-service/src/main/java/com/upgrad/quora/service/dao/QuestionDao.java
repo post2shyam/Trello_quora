@@ -93,4 +93,13 @@ public class QuestionDao {
         entityManager.remove(questionEntity);
         return questionEntity;
     }
+
+    /**
+     * @param questionEntity - question entity with updated content
+     * @return questionEntity after persisting successfully
+     */
+    public QuestionEntity editQuestionContent(final QuestionEntity questionEntity) {
+        entityManager.merge(questionEntity);
+        return questionEntity;
+    }
 }

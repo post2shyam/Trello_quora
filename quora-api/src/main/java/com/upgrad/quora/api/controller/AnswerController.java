@@ -40,14 +40,15 @@ public class AnswerController {
     public ResponseEntity<AnswerResponse> createAnswer(@RequestHeader("authorization") final String authorization,
                                                        @PathVariable("questionId") final String questionId,
                                                        final AnswerRequest answerRequest) throws AuthorizationFailedException, InvalidQuestionException {
+        //Get question entity using id provided by the user
+        QuestionEntity questionEntity = questionBusinessService.getQuestionEntity(questionId, authorization);
+
+        //Prepare answer entity
         final AnswerEntity answerEntity = new AnswerEntity();
         answerEntity.setUuid(UUID.randomUUID().toString());
+        answerEntity.setQuestion(questionEntity);
         answerEntity.setDate(ZonedDateTime.now());
         answerEntity.setAnswer(answerRequest.getAnswer());
-
-        //Get question entity using id provided by the user
-        QuestionEntity questionEntity = questionBusinessService.getQuestionEntity(questionId);
-        answerEntity.setQuestion(questionEntity);
 
         final AnswerEntity createdAnswerEntity = answerBusinessService.createAnswer(answerEntity, authorization);
         AnswerResponse answerResponse = new AnswerResponse().id(createdAnswerEntity.getUuid()).status("ANSWER CREATED");
@@ -120,16 +121,15 @@ public class AnswerController {
      * @throws InvalidQuestionException     - if question does not exists in db
      */
     @RequestMapping(method = RequestMethod.GET, path = "answer/all/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<AnswerDetailsResponse>> getAllAnswersToQuestion(@PathVariable("questionId") final String questionId, @RequestHeader("authorization") final String authorization)
+    public ResponseEntity<List<AnswerDetailsResponse>> getAllAnswersToQuestion(@PathVariable("questionId") final String questionId,
+                                                                               @RequestHeader("authorization") final String authorization)
             throws AuthorizationFailedException, InvalidQuestionException {
 
         //Get question entity using id provided by the user
-
-        //TODO: Need to implement InvalidQuestionException in question service class
-        QuestionEntity questionEntity = questionBusinessService.getQuestionEntity(questionId);
+        QuestionEntity questionEntity = questionBusinessService.getQuestionEntity(questionId, authorization);
 
         // Fetch all answers for the provided question id
-        List<AnswerEntity> allAnswers = answerBusinessService.getAllAnswersToQuestion(questionEntity, authorization);
+        List<AnswerEntity> allAnswers = answerBusinessService.getAllAnswersToQuestion(questionEntity);
 
         List<AnswerDetailsResponse> allAnswersList = new ArrayList<>(allAnswers.size());
         for (AnswerEntity answerEntity : allAnswers) {

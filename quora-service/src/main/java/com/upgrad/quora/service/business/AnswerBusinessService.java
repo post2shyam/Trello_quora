@@ -29,15 +29,11 @@ public class AnswerBusinessService {
      * @throws InvalidQuestionException
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public AnswerEntity createAnswer(final AnswerEntity answerEntity, final String authorization)
-            throws AuthorizationFailedException, InvalidQuestionException {
-        UserAuthEntity userAuthToken = answerDao.getUserAuthToken(authorization);
-        if (userAuthToken == null) {
-            throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
-        }
+    public AnswerEntity createAnswer(final AnswerEntity answerEntity, final String authorization) throws InvalidQuestionException {
         if (answerEntity.getQuestion() == null) {
             throw new InvalidQuestionException("QUES-001", "The question entered is invalid");
         }
+        final UserAuthEntity userAuthToken = answerDao.getUserAuthToken(authorization);
         answerEntity.setUser(userAuthToken.getUserEntity());
         return answerDao.createAnswer(answerEntity);
     }
@@ -75,12 +71,7 @@ public class AnswerBusinessService {
      * @return
      * @throws AuthorizationFailedException
      */
-    public List<AnswerEntity> getAllAnswersToQuestion(final QuestionEntity questionEntity, final String authorization)
-            throws AuthorizationFailedException {
-        final UserAuthEntity userAuthToken = answerDao.getUserAuthToken(authorization);
-        if (userAuthToken == null) {
-            throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
-        }
+    public List<AnswerEntity> getAllAnswersToQuestion(final QuestionEntity questionEntity) {
         return answerDao.getAllAnswersToQuestion(questionEntity.getUuid());
     }
 
