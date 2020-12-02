@@ -79,11 +79,11 @@ public class UserDao {
     /**
      * Method to delete user by id
      *
-     * @param userId : username which you want to delete
+     * @param uuid : username which you want to delete
      * @return deleted response
      */
-    public UserEntity deleteUser(final String userId) {
-        UserEntity deleteUser = getUserById(userId);
+    public UserEntity deleteUser(final String uuid) {
+        UserEntity deleteUser = getUserById(uuid);
         if (deleteUser != null) {
             this.entityManager.remove(deleteUser);
         }

@@ -29,7 +29,7 @@ public class AdminService {
     @Transactional(propagation = Propagation.REQUIRED)
     public UserEntity deleteUser(final String userId, final String accessToken)
             throws AuthorizationFailedException, UserNotFoundException {
-        UserAuthEntity userAuthEntity = this.userAuthDao.getUserAuthByToken(accessToken);
+        UserAuthEntity userAuthEntity = userAuthDao.getUserAuthByToken(accessToken);
 
         if(userAuthEntity == null) {
             throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
@@ -43,14 +43,13 @@ public class AdminService {
             throw new AuthorizationFailedException("ATHR-003", "Unauthorized Access, Entered user is not an admin");
         }
 
-        UserEntity existingUser = this.userDao.getUserById(userId);
+        UserEntity existingUser = userDao.getUserById(userId);
 
         if(existingUser == null) {
-            throw new UserNotFoundException(
-                    "USR-001", "User with entered uuid to be deleted does not exist");
+            throw new UserNotFoundException("USR-001", "User with entered uuid to be deleted does not exist");
         }
 
-        UserEntity deletedUser = this.userDao.deleteUser(userId);
+        UserEntity deletedUser = userDao.deleteUser(userId);
         return deletedUser;
     }
 }
