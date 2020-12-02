@@ -1,22 +1,21 @@
 package com.upgrad.quora.api.controller;
 
 import com.upgrad.quora.api.model.SigninResponse;
+import com.upgrad.quora.api.model.SignoutResponse;
 import com.upgrad.quora.api.model.SignupUserRequest;
 import com.upgrad.quora.api.model.SignupUserResponse;
 import com.upgrad.quora.service.business.UserBusinessService;
-import com.upgrad.quora.service.dao.QuestionDao;
 import com.upgrad.quora.service.dao.UserDao;
 import com.upgrad.quora.service.entity.UserAuthEntity;
 import com.upgrad.quora.service.entity.UserEntity;
 import com.upgrad.quora.service.exception.AuthenticationFailedException;
-import com.upgrad.quora.service.exception.AuthorizationFailedException;
+import com.upgrad.quora.service.exception.SignOutRestrictedException;
 import com.upgrad.quora.service.exception.SignUpRestrictedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -36,7 +35,7 @@ public class UserController {
     UserDao userDao;
 
     /**
-     * This method is for user signup. This method receives the object of SignupUserRequest type with its attributes being set.
+     * Request mapping for user signup. This method receives the object of SignupUserRequest type with its attributes being set.
      *
      * @return SignupUserResponse - UUID of the user created.
      * @throws SignUpRestrictedException - if the username or email already exist in the database.
@@ -58,11 +57,11 @@ public class UserController {
 
         UserEntity createdUserEntity = userBusinessService.signup(userEntity);
         SignupUserResponse userResponse = new SignupUserResponse().id(createdUserEntity.getUuid()).status("USER SUCCESSFULLY REGISTERED");
-        return new ResponseEntity<SignupUserResponse>(userResponse, HttpStatus.CREATED);
+        return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
     }
 
     /**
-     * This method is for a user to singin.
+     * Request mapping for a user to singin.
      *
      * @param authorization for the basic authentication
      * @return Signin response which has userId and access-token in response header.
@@ -81,6 +80,20 @@ public class UserController {
         SigninResponse signinResponse = new SigninResponse();
         signinResponse.setId(userAuthEntity.getUserEntity().getUuid());
         signinResponse.setMessage("SIGNED IN SUCCESSFULLY");
-        return new ResponseEntity<SigninResponse>(signinResponse, headers, HttpStatus.OK);
+        return new ResponseEntity<>(signinResponse, headers, HttpStatus.OK);
+    }
+
+    /**
+     * Request mapping to sign-out user
+     *
+     * @param accessToken
+     * @return SignoutResponse
+     * @throws SignOutRestrictedException
+     */
+    @RequestMapping(method = RequestMethod.POST, path = "/user/signout", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<SignoutResponse> signout(@RequestHeader("authorization") final String accessToken) throws SignOutRestrictedException {
+        UserEntity userEntity = userBusinessService.signout(accessToken);
+        SignoutResponse signoutResponse = new SignoutResponse().id(userEntity.getUuid()).message("SIGNED OUT SUCCESSFULLY");
+        return new ResponseEntity<>(signoutResponse, HttpStatus.OK);
     }
 }
