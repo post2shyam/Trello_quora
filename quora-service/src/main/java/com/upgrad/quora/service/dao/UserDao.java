@@ -1,5 +1,6 @@
 package com.upgrad.quora.service.dao;
 
+import com.upgrad.quora.service.entity.UserAuthEntity;
 import com.upgrad.quora.service.entity.UserEntity;
 import org.springframework.stereotype.Repository;
 
@@ -54,16 +55,13 @@ public class UserDao {
     /**
      * Fetch a single user by given id from the DB.
      *
-     * @param userId Id of the user whose information is to be fetched.
+     * @param uuid Id of the user whose information is to be fetched.
      * @return User details if exist in the DB else null.
      */
-    public UserEntity getUserById(final String userId) {
-        try {
-            return entityManager
-                    .createNamedQuery("userByUserId", UserEntity.class)
-                    .setParameter("userId", userId)
-                    .getSingleResult();
-        } catch (NoResultException nre) {
+    public UserEntity getUserById(final String uuid) {
+        try{
+            return entityManager.createNamedQuery("userByUserId", UserEntity.class).setParameter("uuid", uuid).getSingleResult();
+        }catch (NoResultException nre) {
             return null;
         }
     }
@@ -79,17 +77,16 @@ public class UserDao {
     }
 
     /**
-     * Delete a user by given id from the DB.
+     * Method to delete user by id
      *
-     * @param userId Id of the user whose information is to be fetched.
-     * @return User details which is to be deleted if exist in the DB else null.
+     * @param uuid : username which you want to delete
+     * @return deleted response
      */
-    public UserEntity deleteUser(final String userId) {
-        UserEntity deleteUser = getUserById(userId);
+    public UserEntity deleteUser(final String uuid) {
+        UserEntity deleteUser = getUserById(uuid);
         if (deleteUser != null) {
             this.entityManager.remove(deleteUser);
         }
         return deleteUser;
     }
-
 }
