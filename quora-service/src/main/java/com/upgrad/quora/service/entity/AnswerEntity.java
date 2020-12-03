@@ -11,7 +11,6 @@ import java.time.ZonedDateTime;
         {
                 @NamedQuery(name = "answerFromUuid" , query = "select a from AnswerEntity a where a.uuid = :answerUuid"),
                 @NamedQuery(name = "allAnswersToQuestion" , query = "select a from AnswerEntity a where a.question.uuid = :questionUuid"),
-                @NamedQuery(name = "validateOwnership" , query = "select a from AnswerEntity a INNER JOIN UserEntity u on a.user = u.id where a.uuid =:answerUuid and u.uuid = :userUuid")
         }
 )
 

@@ -6,6 +6,7 @@ import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.entity.UserAuthEntity;
 import com.upgrad.quora.service.entity.UserEntity;
 import com.upgrad.quora.service.exception.AnswerNotFoundException;
+import com.upgrad.quora.service.exception.AuthenticationFailedException;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.InvalidQuestionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,21 @@ public class AnswerBusinessService {
      * @param uuid
      * @return
      */
-    public AnswerEntity getAnswerbyUuid(final String uuid) {
+    public AnswerEntity getAnswerbyUuid(final String uuid, final String authorization)
+            throws AnswerNotFoundException, AuthorizationFailedException, AuthenticationFailedException {
+
+        //check if user has not signed in
+        isUserAuthenticated(authorization);
+
+        //check if user is logged out
+        isUserLoggedOut(authorization);
+
+        //Fetch answer entity from answer id
+        AnswerEntity answerEntity = answerDao.getAnswerByUuId(uuid);
+
+        if (answerEntity == null) {
+            throw new AnswerNotFoundException("ANS-001", "Entered answer uuid does not exist");
+        }
         return answerDao.getAnswerByUuId(uuid);
     }
 
@@ -67,7 +82,7 @@ public class AnswerBusinessService {
 
     /**
      * @param questionEntity
-     * @param authorization
+     *
      * @return
      * @throws AuthorizationFailedException
      */
@@ -76,29 +91,84 @@ public class AnswerBusinessService {
     }
 
     /**
-     * @param answerEntity
+     * @param answerId
      * @param authorization
      * @return
      * @throws AuthorizationFailedException
      * @throws AnswerNotFoundException
      */
-    public AnswerEntity validateAnswerEntity(final AnswerEntity answerEntity, final String authorization)
-            throws AuthorizationFailedException, AnswerNotFoundException {
-        if (answerEntity == null) {
-            throw new AnswerNotFoundException("ANS-001", "Entered answer uuid does not exist");
-        }
+    public AnswerEntity validateAnswerToEdit(final String answerId, final String authorization)
+            throws AuthorizationFailedException, AnswerNotFoundException, AuthenticationFailedException {
 
-        final UserAuthEntity userAuthToken = answerDao.getUserAuthToken(authorization);
-        if (userAuthToken == null) {
-            throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
-        }
+        //Get answer by uuid. It throws exception if answer does not exists
+        AnswerEntity answerEntity = getAnswerbyUuid(answerId, authorization);
 
-        final UserEntity userEntity = userAuthToken.getUserEntity();
-        final Boolean isUserOwnerOfAnswer = answerDao.isUserOwnerOfAnswer(answerEntity.getUuid(), userEntity.getUuid());
+        //Check if user is owner of the answer
+        final Boolean isUserOwnerOfAnswer = isUserAnswerOwner(authorization, answerEntity);
 
+        //If user is not the owner of the answer, will throw an exception
         if (!isUserOwnerOfAnswer) {
             throw new AuthorizationFailedException("ATHR-003", "Only the answer owner can edit the answer");
         }
         return answerEntity;
+    }
+
+    /**
+     * @param answerId
+     * @param authorization
+     * @return
+     * @throws AuthorizationFailedException
+     * @throws AnswerNotFoundException
+     */
+    public AnswerEntity validateAnswerToDelete(final String answerId, final String authorization)
+            throws AuthorizationFailedException, AnswerNotFoundException, AuthenticationFailedException {
+
+        // Fetch answer entity
+        AnswerEntity answerEntity = getAnswerbyUuid(answerId, authorization);
+
+        //Check if user is owner of the answer
+        final Boolean isUserOwnerOfAnswer = isUserAnswerOwner(authorization, answerEntity);
+
+        //Check if user is admin
+        final Boolean isUserAdmin = isUserAdmin(authorization);
+
+        if (!isUserAdmin && !isUserOwnerOfAnswer) {
+            throw new AuthorizationFailedException("ATHR-003", "Only the answer owner or admin can delete the answer");
+        }
+        return answerEntity;
+    }
+
+    private void checkBasicAnswerValidation() {
+
+    }
+
+    private void isUserAuthenticated(final String authorization) throws AuthorizationFailedException {
+        UserAuthEntity userAuthToken = answerDao.getUserAuthToken(authorization);
+        if (userAuthToken == null) {
+            throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
+        }
+    }
+
+    private void isUserLoggedOut(final String authorization) throws AuthenticationFailedException {
+        UserAuthEntity userAuthToken = answerDao.getUserAuthToken(authorization);
+        if (userAuthToken.getLogoutAt() != null) {
+            throw new AuthenticationFailedException("ATHR-002", "User is signed out.Sign in first to delete an answer");
+        }
+    }
+
+    private boolean isUserAdmin(final String authorization) {
+        UserAuthEntity userAuthToken = answerDao.getUserAuthToken(authorization);
+        if (userAuthToken.getUserEntity().getRole() == "admin") {
+          return true;
+        }
+        return false;
+    }
+
+    private boolean isUserAnswerOwner(final String authorization, final AnswerEntity answerEntity) throws AuthenticationFailedException {
+        UserAuthEntity userAuthToken = answerDao.getUserAuthToken(authorization);
+        if (userAuthToken.getUserEntity().getUuid() == answerEntity.getUser().getUuid()) {
+            return true;
+        }
+        return false;
     }
 }
