@@ -12,10 +12,18 @@ import org.springframework.web.context.request.WebRequest;
 public class RestExceptionHandler {
 
     @ExceptionHandler(AuthorizationFailedException.class)
-    public ResponseEntity<ErrorResponse> authenticationFailedExceptionHandler(final AuthorizationFailedException exc,
+    public ResponseEntity<ErrorResponse> authorizationFailedExceptionHandler(final AuthorizationFailedException exc,
                                                                               final WebRequest request) {
         return new ResponseEntity<>(
-                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.UNAUTHORIZED
+                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.FORBIDDEN
+        );
+    }
+
+    @ExceptionHandler(AuthenticationFailedException.class)
+    public ResponseEntity<ErrorResponse> authenticationFailedExceptionHandler(final AuthenticationFailedException exc,
+                                                                              final WebRequest request) {
+        return new ResponseEntity<>(
+                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.FORBIDDEN
         );
     }
 
@@ -23,7 +31,7 @@ public class RestExceptionHandler {
     public ResponseEntity<ErrorResponse> invalidQuestionExceptionHandler(final InvalidQuestionException exc,
                                                                          final WebRequest request) {
         return new ResponseEntity<>(
-                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.UNPROCESSABLE_ENTITY
+                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.NOT_FOUND
         );
     }
 
@@ -31,7 +39,7 @@ public class RestExceptionHandler {
     public ResponseEntity<ErrorResponse> answerNotFoundExceptionHandler(final AnswerNotFoundException exc,
                                                                         final WebRequest request) {
         return new ResponseEntity<>(
-                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.UNPROCESSABLE_ENTITY
+                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.NOT_FOUND
         );
     }
 

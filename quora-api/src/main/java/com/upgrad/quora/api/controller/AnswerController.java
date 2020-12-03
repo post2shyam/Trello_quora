@@ -6,6 +6,7 @@ import com.upgrad.quora.service.business.QuestionBusinessService;
 import com.upgrad.quora.service.entity.AnswerEntity;
 import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.exception.AnswerNotFoundException;
+import com.upgrad.quora.service.exception.AuthenticationFailedException;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.InvalidQuestionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,16 +66,13 @@ public class AnswerController {
     @RequestMapping(method = RequestMethod.DELETE, path = "/answer/delete/{answerId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<AnswerDeleteResponse> deleteAnswer(@PathVariable("answerId") final String answerId,
                                                              @RequestHeader("authorization") final String authorization)
-            throws AuthorizationFailedException, AnswerNotFoundException {
-
-        //Fetch answer entity from answer id
-        AnswerEntity answerEntity = answerBusinessService.getAnswerbyUuid(answerId);
+            throws AuthorizationFailedException, AnswerNotFoundException, AuthenticationFailedException {
 
         //Check all validations for deleting the answer and return the entity
-        AnswerEntity validatedAnswerEntity = answerBusinessService.validateAnswerEntity(answerEntity, authorization);
+        AnswerEntity answerEntity = answerBusinessService.validateAnswerToDelete(answerId, authorization);
 
         //Delete answer
-        AnswerEntity deletedAnswer = answerBusinessService.deleteAnswer(validatedAnswerEntity);
+        AnswerEntity deletedAnswer = answerBusinessService.deleteAnswer(answerEntity);
 
         AnswerDeleteResponse answerDeleteResponse = new AnswerDeleteResponse().id(deletedAnswer.getUuid())
                 .status("ANSWER DELETED");
@@ -92,19 +90,16 @@ public class AnswerController {
     @RequestMapping(method = RequestMethod.PUT, path = "/answer/edit/{answerId}", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<AnswerEditResponse> editAnswerContent(final AnswerEditRequest answerEditRequest, @PathVariable("answerId") final String answerId,
                                                                 @RequestHeader("authorization") final String authorization)
-            throws AuthorizationFailedException, AnswerNotFoundException {
+            throws AuthorizationFailedException, AnswerNotFoundException, AuthenticationFailedException {
 
-        //Fetch answer entity from answer id
-        AnswerEntity answerEntity = answerBusinessService.getAnswerbyUuid(answerId);
+        //Check all validations for editing an answer and return the entity
+        AnswerEntity answerEntity = answerBusinessService.validateAnswerToEdit(answerId, authorization);
 
         //Update answer entity content
         answerEntity.setAnswer(answerEditRequest.getContent());
 
-        //Check all validations for editing an answer and return the entity
-        AnswerEntity validatedAnswerEntity = answerBusinessService.validateAnswerEntity(answerEntity, authorization);
-
         //Persist Edit answer
-        AnswerEntity editedAnswer = answerBusinessService.editAnswer(validatedAnswerEntity);
+        AnswerEntity editedAnswer = answerBusinessService.editAnswer(answerEntity);
 
         AnswerEditResponse answerEditResponse = new AnswerEditResponse()
                 .id(editedAnswer.getUuid())

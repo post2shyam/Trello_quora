@@ -30,27 +30,9 @@ public class AnswerDao {
      */
     public AnswerEntity getAnswerByUuId(final String uuid) {
         try {
-            return entityManager.createNamedQuery("AnswerFromUuid", AnswerEntity.class).setParameter("answerUuid", uuid).getSingleResult();
+            return entityManager.createNamedQuery("answerFromUuid", AnswerEntity.class).setParameter("answerUuid", uuid).getSingleResult();
         } catch (NoResultException nre) {
             return null;
-        }
-    }
-
-    /**
-     * @param answerUuid
-     * @param userUuid
-     * @return
-     */
-    public Boolean isUserOwnerOfAnswer(final String answerUuid, final String userUuid) {
-        try {
-            AnswerEntity answerEntity = entityManager.createNamedQuery("validateOwnership", AnswerEntity.class).setParameter("answerUuid", answerUuid).setParameter("userUuid", userUuid).getSingleResult();
-            if (answerEntity == null) {
-                return false;
-            } else {
-                return true;
-            }
-        } catch (NoResultException nre) {
-            return false;
         }
     }
 
