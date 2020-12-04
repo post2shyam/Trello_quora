@@ -27,12 +27,12 @@ public class QuestionBusinessService {
      * @throws AuthorizationFailedException - if the user fails to authenticate
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public QuestionEntity createQuestion(final QuestionEntity questionEntity, final String authorization) throws AuthorizationFailedException {
+    public QuestionEntity createQuestion(final QuestionEntity questionEntity,
+                                         final String authorization,
+                                         final String loggedOutErrorMessage) throws AuthorizationFailedException {
+        isUserAuthenticated(authorization);
+        isUserLoggedOut(authorization, loggedOutErrorMessage);
         UserAuthEntity userAuthToken = questionDao.getUserAuthToken(authorization);
-        if (userAuthToken == null) {
-            throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
-        }
-
         questionEntity.setUser(userAuthToken.getUserEntity());
         return questionDao.createQuestion(questionEntity);
     }
@@ -43,9 +43,12 @@ public class QuestionBusinessService {
      * @param uuid - id of the question which has to be fetched from db
      * @return - asked question
      */
-    public QuestionEntity getQuestionEntity(final String uuid, final String authorization)
+    public QuestionEntity getQuestionEntity(final String uuid,
+                                            final String authorization,
+                                            final String loggedOutErrorMessage)
             throws AuthorizationFailedException, InvalidQuestionException {
         isUserAuthenticated(authorization);
+        isUserLoggedOut(authorization, loggedOutErrorMessage);
         doesQuestionExist(uuid);
         return questionDao.getQuestionByUUId(uuid);
     }
@@ -58,8 +61,10 @@ public class QuestionBusinessService {
      * @return list of all questions
      * @throws AuthorizationFailedException - if the user is not authenticated.
      */
-    public List<QuestionEntity> getAllQuestions(final String authorization) throws AuthorizationFailedException {
+    public List<QuestionEntity> getAllQuestions(final String authorization,
+                                                final String loggedOutErrorMessage) throws AuthorizationFailedException {
         isUserAuthenticated(authorization);
+        isUserLoggedOut(authorization, loggedOutErrorMessage);
         return questionDao.getAllQuestions();
     }
 
@@ -77,8 +82,11 @@ public class QuestionBusinessService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public QuestionEntity deleteQuestion(final String questionId, final String authorization) throws AuthorizationFailedException {
+    public QuestionEntity deleteQuestion(final String questionId,
+                                         final String authorization,
+                                         final String loggedOutErrorMessage) throws AuthorizationFailedException {
         isUserAuthenticated(authorization);
+        isUserLoggedOut(authorization, loggedOutErrorMessage);
         return questionDao.deleteQuestion(questionId);
     }
 
@@ -100,11 +108,17 @@ public class QuestionBusinessService {
         }
     }
 
+    private void isUserLoggedOut(final String authorization, final String detailMsg) throws AuthorizationFailedException {
+        UserAuthEntity userAuthToken = questionDao.getUserAuthToken(authorization);
+        if (userAuthToken.getLogoutAt() != null) {
+            throw new AuthorizationFailedException("ATHR-002", String.format("User is signed out. %s", detailMsg));
+        }
+    }
+
     private void doesQuestionExist(final String questionId) throws InvalidQuestionException {
         QuestionEntity questionEntity = questionDao.getQuestionByUUId(questionId);
         if (questionEntity == null) {
             throw new InvalidQuestionException("QUES-001", "Entered question uuid does not exist");
         }
     }
-
 }

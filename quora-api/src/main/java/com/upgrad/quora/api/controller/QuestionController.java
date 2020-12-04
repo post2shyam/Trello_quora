@@ -40,7 +40,7 @@ public class QuestionController {
         questionEntity.setDate(ZonedDateTime.now());
         questionEntity.setContent(questionRequest.getContent());
 
-        final QuestionEntity createdQuestionEntity = questionBusinessService.createQuestion(questionEntity, authorization);
+        final QuestionEntity createdQuestionEntity = questionBusinessService.createQuestion(questionEntity, authorization,"Sign in first to post a question.");
         final QuestionResponse questionResponse = new QuestionResponse().id(createdQuestionEntity.getUuid()).status("Question created successfully");
         return new ResponseEntity<>(questionResponse, HttpStatus.CREATED);
     }
@@ -54,7 +54,7 @@ public class QuestionController {
      */
     @RequestMapping(method = RequestMethod.GET, path = "/question/all", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestions(@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
-        final List<QuestionEntity> allQuestions = questionBusinessService.getAllQuestions(authorization);
+        final List<QuestionEntity> allQuestions = questionBusinessService.getAllQuestions(authorization,"Sign in first to get all questions posted by a specific user");
         return prepareQuestionDetailResponse(allQuestions);
     }
 
@@ -76,7 +76,7 @@ public class QuestionController {
     @RequestMapping(method = RequestMethod.DELETE, path = "/question/delete/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<QuestionDeleteResponse> deleteQuestion(@PathVariable("questionId") final String questionId,
                                                                  @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
-        final QuestionEntity questionEntity = questionBusinessService.deleteQuestion(questionId, authorization);
+        final QuestionEntity questionEntity = questionBusinessService.deleteQuestion(questionId, authorization, "Sign in first to delete a question");
         final QuestionDeleteResponse questionDeleteResponse = new QuestionDeleteResponse().id(questionEntity.getUuid()).status("Question deleted successfully");
         return new ResponseEntity<>(questionDeleteResponse, HttpStatus.NO_CONTENT);
     }
@@ -97,7 +97,7 @@ public class QuestionController {
                                                                     @RequestHeader("authorization") final String authorization)
             throws AuthorizationFailedException, InvalidQuestionException {
         //Fetch the existing question
-        final QuestionEntity questionEntity = questionBusinessService.getQuestionEntity(questionId, authorization);
+        final QuestionEntity questionEntity = questionBusinessService.getQuestionEntity(questionId, authorization,"Sign in first to edit the question.");
 
         //Update the contents
         questionEntity.setContent(questionEditRequest.getContent());

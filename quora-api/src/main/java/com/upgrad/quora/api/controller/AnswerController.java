@@ -42,7 +42,7 @@ public class AnswerController {
                                                        @PathVariable("questionId") final String questionId,
                                                        final AnswerRequest answerRequest) throws AuthorizationFailedException, InvalidQuestionException {
         //Get question entity using id provided by the user
-        QuestionEntity questionEntity = questionBusinessService.getQuestionEntity(questionId, authorization);
+        QuestionEntity questionEntity = questionBusinessService.getQuestionEntity(questionId, authorization, "Sign in first to post an answer");
 
         //Prepare answer entity
         final AnswerEntity answerEntity = new AnswerEntity();
@@ -121,7 +121,7 @@ public class AnswerController {
             throws AuthorizationFailedException, InvalidQuestionException {
 
         //Get question entity using id provided by the user
-        QuestionEntity questionEntity = questionBusinessService.getQuestionEntity(questionId, authorization);
+        QuestionEntity questionEntity = questionBusinessService.getQuestionEntity(questionId, authorization, "Sign in first to get the answers");
 
         // Fetch all answers for the provided question id
         List<AnswerEntity> allAnswers = answerBusinessService.getAllAnswersToQuestion(questionEntity);
