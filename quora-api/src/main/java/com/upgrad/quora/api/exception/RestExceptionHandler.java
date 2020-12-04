@@ -13,7 +13,7 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(AuthorizationFailedException.class)
     public ResponseEntity<ErrorResponse> authorizationFailedExceptionHandler(final AuthorizationFailedException exc,
-                                                                              final WebRequest request) {
+                                                                             final WebRequest request) {
         return new ResponseEntity<>(
                 new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.FORBIDDEN
         );
@@ -47,7 +47,7 @@ public class RestExceptionHandler {
     public ResponseEntity<ErrorResponse> signupRestrictedExceptionHandler(final SignUpRestrictedException exc,
                                                                           final WebRequest request) {
         return new ResponseEntity<>(
-                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.UNPROCESSABLE_ENTITY
+                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.CONFLICT
         );
     }
 
