@@ -55,7 +55,7 @@ public class RestExceptionHandler {
     public ResponseEntity<ErrorResponse> signOutRestrictedExceptionHandler(final SignOutRestrictedException exc,
                                                                            final WebRequest request) {
         return new ResponseEntity<>(
-                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.FORBIDDEN
+                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.UNAUTHORIZED
         );
     }
 
