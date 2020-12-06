@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZonedDateTime;
+
 @Service
 public class CommonUserService {
 
@@ -33,11 +35,17 @@ public class CommonUserService {
             throw new AuthorizationFailedException("ATHR-002", "User is signed out. Sign in first to get user details.");
         }
 
+        //Is the token has expired before current system time
+        final ZonedDateTime currentTime = ZonedDateTime.now();
+        if (userAuthEntity.getExpiresAt().isBefore(currentTime)) {
+            throw new AuthorizationFailedException("ATHR-004", "Invalid access token.");
+        }
+
         final UserEntity userEntity = userDao.getUserById(userUuid);
         if (userEntity == null) {
             throw new UserNotFoundException("USR-001", "User with entered uuid does not exist");
         }
-        
+
         return userEntity;
     }
 }
