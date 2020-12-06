@@ -11,6 +11,7 @@ import javax.persistence.PersistenceContext;
 public class UserAuthDao {
 
     @PersistenceContext private EntityManager entityManager;
+
     /**
      * get User auth by token
      *

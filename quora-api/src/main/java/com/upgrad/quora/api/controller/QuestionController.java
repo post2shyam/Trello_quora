@@ -88,7 +88,7 @@ public class QuestionController {
     /**
      * To edit content of an existing question
      *
-     * @param questionId          - question id of the question to be edited
+     * @param questionUuid          - question id of the question to be edited
      * @param questionEditRequest - carries the new content
      * @param authorization       - logged-in user
      * @return
@@ -96,12 +96,13 @@ public class QuestionController {
      * @throws InvalidQuestionException     - if the question dont exist
      */
     @RequestMapping(method = RequestMethod.PUT, path = "/question/edit/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<QuestionEditResponse> editQuestionContent(@PathVariable("questionId") final String questionId,
+    public ResponseEntity<QuestionEditResponse> editQuestionContent(@PathVariable("questionId") final String questionUuid,
                                                                     final QuestionEditRequest questionEditRequest,
                                                                     @RequestHeader("authorization") final String authorization)
             throws AuthorizationFailedException, InvalidQuestionException, AuthenticationFailedException {
+
         //Fetch the existing question
-        final QuestionEntity questionEntity = questionBusinessService.getQuestionEntity(questionId, authorization, "Sign in first to edit the question");
+        final QuestionEntity questionEntity = questionBusinessService.getQuestionEntity(questionUuid, authorization, "Sign in first to edit the question");
 
         //Update the contents
         questionEntity.setContent(questionEditRequest.getContent());

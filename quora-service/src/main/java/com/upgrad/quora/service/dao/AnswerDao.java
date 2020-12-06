@@ -25,12 +25,12 @@ public class AnswerDao {
     }
 
     /**
-     * @param uuid
+     * @param answerUuid
      * @return
      */
-    public AnswerEntity getAnswerByUuId(final String uuid) {
+    public AnswerEntity getAnswerByUuId(final String answerUuid) {
         try {
-            return entityManager.createNamedQuery("answerFromUuid", AnswerEntity.class).setParameter("answerUuid", uuid).getSingleResult();
+            return entityManager.createNamedQuery("answerFromUuid", AnswerEntity.class).setParameter("answerUuid", answerUuid).getSingleResult();
         } catch (NoResultException nre) {
             return null;
         }
@@ -54,12 +54,12 @@ public class AnswerDao {
     }
 
     /**
-     * @param uuid
+     * @param questionUuid
      * @return
      */
-    public List<AnswerEntity> getAllAnswersToQuestion(final String uuid) {
+    public List<AnswerEntity> getAllAnswersToQuestion(final String questionUuid) {
         try {
-            return entityManager.createNamedQuery("allAnswersToQuestion", AnswerEntity.class).setParameter("questionUuid", uuid).getResultList();
+            return entityManager.createNamedQuery("allAnswersToQuestion", AnswerEntity.class).setParameter("questionUuid", questionUuid).getResultList();
         } catch (NoResultException nre) {
             return null;
         }
