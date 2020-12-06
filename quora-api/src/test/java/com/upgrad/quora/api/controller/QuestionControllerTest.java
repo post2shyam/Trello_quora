@@ -152,6 +152,5 @@ public class QuestionControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("code").value("USR-001"));
     }
 
-
 }
 

@@ -40,7 +40,7 @@ public class AnswerController {
     @RequestMapping(method = RequestMethod.POST, path = "/question/{questionId}/answer/create", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<AnswerResponse> createAnswer(@RequestHeader("authorization") final String authorization,
                                                        @PathVariable("questionId") final String questionId,
-                                                       final AnswerRequest answerRequest) throws AuthorizationFailedException, InvalidQuestionException {
+                                                       final AnswerRequest answerRequest) throws AuthorizationFailedException, InvalidQuestionException, AuthenticationFailedException {
         //Get question entity using id provided by the user
         QuestionEntity questionEntity = questionBusinessService.getQuestionEntity(questionId, authorization, "Sign in first to post an answer");
 
@@ -118,7 +118,7 @@ public class AnswerController {
     @RequestMapping(method = RequestMethod.GET, path = "answer/all/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<AnswerDetailsResponse>> getAllAnswersToQuestion(@PathVariable("questionId") final String questionId,
                                                                                @RequestHeader("authorization") final String authorization)
-            throws AuthorizationFailedException, InvalidQuestionException {
+            throws AuthorizationFailedException, InvalidQuestionException, AuthenticationFailedException {
 
         //Get question entity using id provided by the user
         QuestionEntity questionEntity = questionBusinessService.getQuestionEntity(questionId, authorization, "Sign in first to get the answers");

@@ -30,6 +30,6 @@ public class AdminController {
     public ResponseEntity<UserDeleteResponse> deleteUser(@RequestHeader("authorization") final String accessToken, @PathVariable("userId") String userId) throws AuthorizationFailedException, UserNotFoundException {
         UserEntity userEntity = adminService.deleteUser(userId, accessToken);
         UserDeleteResponse userDeleteResponse = new UserDeleteResponse().id(userEntity.getUuid()).status("USER SUCCESSFULLY DELETED");
-        return new ResponseEntity<UserDeleteResponse>(userDeleteResponse, HttpStatus.OK);
+        return new ResponseEntity<>(userDeleteResponse, HttpStatus.OK);
     }
 }

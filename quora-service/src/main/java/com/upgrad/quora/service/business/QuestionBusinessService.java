@@ -3,8 +3,11 @@ package com.upgrad.quora.service.business;
 import com.upgrad.quora.service.dao.QuestionDao;
 import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.entity.UserAuthEntity;
+import com.upgrad.quora.service.entity.UserEntity;
+import com.upgrad.quora.service.exception.AuthenticationFailedException;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.InvalidQuestionException;
+import com.upgrad.quora.service.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -22,6 +25,7 @@ public class QuestionBusinessService {
      * This method persists the new question to the db
      *
      * @param questionEntity - new question which has to be persisted
+     * @param s
      * @param authorization  - logged-in user
      * @return persisted new question
      * @throws AuthorizationFailedException - if the user fails to authenticate
@@ -29,9 +33,9 @@ public class QuestionBusinessService {
     @Transactional(propagation = Propagation.REQUIRED)
     public QuestionEntity createQuestion(final QuestionEntity questionEntity,
                                          final String authorization,
-                                         final String loggedOutErrorMessage) throws AuthorizationFailedException {
+                                         final String additionalErrorMsg) throws AuthorizationFailedException, AuthenticationFailedException {
         isUserAuthenticated(authorization);
-        isUserLoggedOut(authorization, loggedOutErrorMessage);
+        isUserLoggedOut(authorization, additionalErrorMsg);
         UserAuthEntity userAuthToken = questionDao.getUserAuthToken(authorization);
         questionEntity.setUser(userAuthToken.getUserEntity());
         return questionDao.createQuestion(questionEntity);
@@ -45,10 +49,10 @@ public class QuestionBusinessService {
      */
     public QuestionEntity getQuestionEntity(final String uuid,
                                             final String authorization,
-                                            final String loggedOutErrorMessage)
-            throws AuthorizationFailedException, InvalidQuestionException {
+                                            final String additionalErrorMsg)
+            throws AuthorizationFailedException, InvalidQuestionException, AuthenticationFailedException {
         isUserAuthenticated(authorization);
-        isUserLoggedOut(authorization, loggedOutErrorMessage);
+        isUserLoggedOut(authorization, additionalErrorMsg);
         doesQuestionExist(uuid);
         return questionDao.getQuestionByUUId(uuid);
     }
@@ -62,42 +66,63 @@ public class QuestionBusinessService {
      * @throws AuthorizationFailedException - if the user is not authenticated.
      */
     public List<QuestionEntity> getAllQuestions(final String authorization,
-                                                final String loggedOutErrorMessage) throws AuthorizationFailedException {
+                                                final String additionalErrorMsg) throws AuthorizationFailedException, AuthenticationFailedException {
         isUserAuthenticated(authorization);
-        isUserLoggedOut(authorization, loggedOutErrorMessage);
+        isUserLoggedOut(authorization, additionalErrorMsg);
         return questionDao.getAllQuestions();
     }
 
     /**
      * Returns all questions from the database belonging to a particular user
      *
-     * @param authorization - logged-in user
      * @param userId        - user for which the questions are to be listed.
+     * @param authorization - logged-in user
+     * @param s
      * @return list of all questions
      * @throws AuthorizationFailedException - if the user is not authenticated.
      */
-    public List<QuestionEntity> getAllQuestionsByUser(final String userId, final String authorization) throws AuthorizationFailedException {
+    public List<QuestionEntity> getAllQuestionsByUser(final String userId,
+                                                      final String authorization,
+                                                      final String additionalErrorMsg) throws AuthorizationFailedException, AuthenticationFailedException, UserNotFoundException {
         isUserAuthenticated(authorization);
-        return questionDao.getAllQuestionsByUser(userId);
+        isUserLoggedOut(authorization, additionalErrorMsg);
+        final List<QuestionEntity> allQuestionsByUser = questionDao.getAllQuestionsByUser(userId);
+        if (0 == allQuestionsByUser.size()) {
+            throw new UserNotFoundException("USR-001", "User with entered uuid whose question details are to be seen does not exist");
+        }
+        return allQuestionsByUser;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     public QuestionEntity deleteQuestion(final String questionId,
                                          final String authorization,
-                                         final String loggedOutErrorMessage) throws AuthorizationFailedException {
+                                         final String additionalErrorMsg) throws AuthorizationFailedException, AuthenticationFailedException, InvalidQuestionException {
         isUserAuthenticated(authorization);
-        isUserLoggedOut(authorization, loggedOutErrorMessage);
+        isUserLoggedOut(authorization, additionalErrorMsg);
+        doesQuestionExist(questionId);
+        final QuestionEntity questionEntity = questionDao.getQuestionByUUId(questionId);
+        isUserOwnerOrAdmin(authorization, questionEntity, additionalErrorMsg);
         return questionDao.deleteQuestion(questionId);
     }
 
     /**
      * Persist the question with new content
      *
+     * @param authorization
      * @param questionEntity - question entity carrying the new content
      * @return question entity after successfully persisting
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public QuestionEntity editQuestionContent(final QuestionEntity questionEntity) {
+    public QuestionEntity editQuestionContent(final String authorization, final QuestionEntity questionEntity) throws AuthorizationFailedException {
+        final UserAuthEntity userAuthEntity = questionDao.getUserAuthToken(authorization);
+        final UserEntity userEntity = userAuthEntity.getUserEntity();
+        final boolean isLoggedInUserSameToQuestionUser = userEntity.getUuid().equals(questionEntity.getUser().getUuid());
+
+        //Is the logged in user owner of question
+        if (!isLoggedInUserSameToQuestionUser) {
+            throw new AuthorizationFailedException("ATHR-003", "Only the question owner can edit the question");
+        }
+
         return questionDao.editQuestionContent(questionEntity);
     }
 
@@ -108,15 +133,34 @@ public class QuestionBusinessService {
         }
     }
 
-    private void isUserLoggedOut(final String authorization, final String detailMsg) throws AuthorizationFailedException {
+    private void isUserLoggedOut(final String authorization, final String additionalErrorMsg) throws AuthenticationFailedException {
         UserAuthEntity userAuthToken = questionDao.getUserAuthToken(authorization);
         if (userAuthToken.getLogoutAt() != null) {
-            throw new AuthorizationFailedException("ATHR-002", String.format("User is signed out. %s", detailMsg));
+            throw new AuthenticationFailedException("ATHR-002", String.format("User is signed out.%s", additionalErrorMsg));
+        }
+    }
+    private void isUserOwnerOrAdmin(final String authorization,
+
+                                    final QuestionEntity questionEntity,
+                                    final String additionalErrorMsg) throws AuthenticationFailedException {
+        final UserAuthEntity userAuthToken = questionDao.getUserAuthToken(authorization);
+        final UserEntity signedInUser = userAuthToken.getUserEntity();
+        final UserEntity questionUser = questionEntity.getUser();
+
+        //Is the signed in user and question user are the same
+        final boolean isSignedInUserOwnerOfQuestion = signedInUser.getUuid().equals(questionUser.getUuid());
+
+        //Is the loggedin user admin
+        final boolean isSignedInUserAdmin = signedInUser.getRole().equals("admin");
+
+        if (!isSignedInUserOwnerOfQuestion && !isSignedInUserAdmin) {
+        //Neither the owner of question, nor admin then throw exception
+            throw new AuthenticationFailedException("ATHR-003", String.format("%s", additionalErrorMsg));
         }
     }
 
     private void doesQuestionExist(final String questionId) throws InvalidQuestionException {
-        QuestionEntity questionEntity = questionDao.getQuestionByUUId(questionId);
+        final QuestionEntity questionEntity = questionDao.getQuestionByUUId(questionId);
         if (questionEntity == null) {
             throw new InvalidQuestionException("QUES-001", "Entered question uuid does not exist");
         }
