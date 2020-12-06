@@ -6,6 +6,7 @@ import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.exception.AuthenticationFailedException;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.InvalidQuestionException;
+import com.upgrad.quora.service.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -70,14 +71,14 @@ public class QuestionController {
      */
     @RequestMapping(method = RequestMethod.GET, path = "question/all/{userId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestionsByUser(@PathVariable("userId") final String userId,
-                                                                               @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, AuthenticationFailedException {
+                                                                               @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, AuthenticationFailedException, UserNotFoundException {
         final List<QuestionEntity> allQuestions = questionBusinessService.getAllQuestionsByUser(userId, authorization, "Sign in first to get all questions posted by a specific user");
         return prepareQuestionDetailResponse(allQuestions);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, path = "/question/delete/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<QuestionDeleteResponse> deleteQuestion(@PathVariable("questionId") final String questionId,
-                                                                 @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, AuthenticationFailedException {
+                                                                 @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, AuthenticationFailedException, InvalidQuestionException {
         final QuestionEntity questionEntity = questionBusinessService.deleteQuestion(questionId, authorization, "Sign in first to delete a question");
         final QuestionDeleteResponse questionDeleteResponse = new QuestionDeleteResponse().id(questionEntity.getUuid()).status("Question deleted successfully");
         return new ResponseEntity<>(questionDeleteResponse, HttpStatus.NO_CONTENT);
@@ -104,7 +105,7 @@ public class QuestionController {
 
         //Update the contents
         questionEntity.setContent(questionEditRequest.getContent());
-        questionBusinessService.editQuestionContent(questionEntity);
+        questionBusinessService.editQuestionContent(authorization, questionEntity);
 
         //Prepare the HTTP response and return
         final QuestionEditResponse questionEditResponse = new QuestionEditResponse().id(questionEntity.getUuid()).status("Question updated successfully");
