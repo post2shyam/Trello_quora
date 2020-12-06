@@ -15,21 +15,23 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/")
 public class AdminController {
 
-    @Autowired private AdminService adminService;
+    @Autowired
+    private AdminService adminService;
 
     /**
      * Get the user detail by user id.
      *
-     * @param userId : user id of the user
-     * @param accessToken : access-token to authenticate the user
-     * @throws AuthorizationFailedException : user authentication exception
-     * @throws UserNotFoundException : will through a user not found exception
+     * @param userId      : uuid / user id of the user
+     * @param accessToken : access-token of the authenticated user
      * @return UserDeleteResponse
+     * @throws AuthorizationFailedException : user authentication exception
+     * @throws UserNotFoundException        : will through a user not found exception
      */
     @RequestMapping(method = RequestMethod.DELETE, path = "/admin/user/{userId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<UserDeleteResponse> deleteUser(@RequestHeader("authorization") final String accessToken, @PathVariable("userId") String userId) throws AuthorizationFailedException, UserNotFoundException {
-        UserEntity userEntity = adminService.deleteUser(userId, accessToken);
-        UserDeleteResponse userDeleteResponse = new UserDeleteResponse().id(userEntity.getUuid()).status("USER SUCCESSFULLY DELETED");
+    public ResponseEntity<UserDeleteResponse> deleteUser(@RequestHeader("authorization") final String accessToken,
+                                                         @PathVariable("userId") final String userId) throws AuthorizationFailedException, UserNotFoundException {
+        final UserEntity userEntity = adminService.deleteUser(userId, accessToken);
+        final UserDeleteResponse userDeleteResponse = new UserDeleteResponse().id(userEntity.getUuid()).status("USER SUCCESSFULLY DELETED");
         return new ResponseEntity<>(userDeleteResponse, HttpStatus.OK);
     }
 }

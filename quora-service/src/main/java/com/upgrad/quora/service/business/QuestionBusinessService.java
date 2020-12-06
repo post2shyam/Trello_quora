@@ -44,17 +44,17 @@ public class QuestionBusinessService {
     /**
      * This method fetches the question from dbm corresponding to a given id.
      *
-     * @param uuid - id of the question which has to be fetched from db
+     * @param questionUuid - id of the question which has to be fetched from db
      * @return - asked question
      */
-    public QuestionEntity getQuestionEntity(final String uuid,
+    public QuestionEntity getQuestionEntity(final String questionUuid,
                                             final String authorization,
                                             final String additionalErrorMsg)
             throws AuthorizationFailedException, InvalidQuestionException, AuthenticationFailedException {
         isUserAuthenticated(authorization);
         isUserLoggedOut(authorization, additionalErrorMsg);
-        doesQuestionExist(uuid);
-        return questionDao.getQuestionByUUId(uuid);
+        doesQuestionExist(questionUuid);
+        return questionDao.getQuestionByUUId(questionUuid);
     }
 
 

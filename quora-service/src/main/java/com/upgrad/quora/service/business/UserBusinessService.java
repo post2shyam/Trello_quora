@@ -18,6 +18,7 @@ import java.util.UUID;
 
 @Service
 public class UserBusinessService {
+
     @Autowired
     private UserDao userDao;
 
@@ -34,17 +35,18 @@ public class UserBusinessService {
      */
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public UserEntity signup(final UserEntity userEntity) throws SignUpRestrictedException {
+    public UserEntity signUp(final UserEntity userEntity) throws SignUpRestrictedException {
+
         if(isUserNameInUse(userEntity.getUserName())) {
             throw new SignUpRestrictedException("SGR-001","Try any other Username, this Username has already been taken");
         }
+
         if(isEmailInUse(userEntity.getEmail())) {
             throw new SignUpRestrictedException("SGR-002", "This user has already been registered, try with any other emailId");
         }
-        // UUID is assigned to the user that is being created.
-        userEntity.setUuid(UUID.randomUUID().toString());
+
         // Encrypted password and salt assigned to the user that is being created.
-        String[] encryptedText = cryptographyProvider.encrypt(userEntity.getPassword());
+        final String[] encryptedText = cryptographyProvider.encrypt(userEntity.getPassword());
         userEntity.setSalt(encryptedText[0]);
         userEntity.setPassword(encryptedText[1]);
         return userDao.createUser(userEntity);
@@ -58,19 +60,21 @@ public class UserBusinessService {
      * @throws AuthenticationFailedException : If user not found or invalid password
      * @return UserAuthEntity access-token and singin response.
      */
-
     @Transactional(propagation = Propagation.REQUIRED)
-    public UserAuthEntity signin(final String username, final String password) throws AuthenticationFailedException {
-        UserEntity userEntity = userDao.getUserByUserName(username);
+    public UserAuthEntity signIn(final String username, final String password) throws AuthenticationFailedException {
+        final UserEntity userEntity = userDao.getUserByUserName(username);
+
         if(userEntity == null) {
             throw new AuthenticationFailedException("ATH-001", "This username does not exist");
         }
+
         final String encryptedPassword = cryptographyProvider.encrypt(password, userEntity.getSalt());
+
         if(!encryptedPassword.equals(userEntity.getPassword())) {
             throw new AuthenticationFailedException("ATH-002", "Password failed");
         }
-        JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(encryptedPassword);
-        UserAuthEntity userAuthEntity = new UserAuthEntity();
+        final JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(encryptedPassword);
+        final UserAuthEntity userAuthEntity = new UserAuthEntity();
         userAuthEntity.setUuid(UUID.randomUUID().toString());
         userAuthEntity.setUserEntity(userEntity);
         final ZonedDateTime now = ZonedDateTime.now();
@@ -92,11 +96,13 @@ public class UserBusinessService {
      * @return UserEntity : that user is signed out.
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public UserEntity signout(final String accessToken) throws SignOutRestrictedException {
-        UserAuthEntity userAuthEntity = userAuthDao.getUserAuthByToken(accessToken);
+    public UserEntity signOut(final String accessToken) throws SignOutRestrictedException {
+        final UserAuthEntity userAuthEntity = userAuthDao.getUserAuthByToken(accessToken);
+
         if(userAuthEntity == null) {
             throw new SignOutRestrictedException("SGR-001", "User is not Signed in");
         }
+
         userAuthEntity.setLogoutAt(ZonedDateTime.now());
         userAuthDao.updateUserAuth(userAuthEntity);
         return userAuthEntity.getUserEntity();

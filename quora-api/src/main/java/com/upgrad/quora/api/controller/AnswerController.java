@@ -42,7 +42,7 @@ public class AnswerController {
                                                        @PathVariable("questionId") final String questionId,
                                                        final AnswerRequest answerRequest) throws AuthorizationFailedException, InvalidQuestionException, AuthenticationFailedException {
         //Get question entity using id provided by the user
-        QuestionEntity questionEntity = questionBusinessService.getQuestionEntity(questionId, authorization, "Sign in first to post an answer");
+        final QuestionEntity questionEntity = questionBusinessService.getQuestionEntity(questionId, authorization, "Sign in first to post an answer");
 
         //Prepare answer entity
         final AnswerEntity answerEntity = new AnswerEntity();
