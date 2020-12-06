@@ -43,7 +43,7 @@ public class QuestionController {
         questionEntity.setContent(questionRequest.getContent());
 
         final QuestionEntity createdQuestionEntity = questionBusinessService.createQuestion(questionEntity, authorization, "Sign in first to post a question");
-        final QuestionResponse questionResponse = new QuestionResponse().id(createdQuestionEntity.getUuid()).status("Question created successfully");
+        final QuestionResponse questionResponse = new QuestionResponse().id(createdQuestionEntity.getUuid()).status("QUESTION CREATED");
         return new ResponseEntity<>(questionResponse, HttpStatus.CREATED);
     }
 
@@ -80,7 +80,7 @@ public class QuestionController {
     public ResponseEntity<QuestionDeleteResponse> deleteQuestion(@PathVariable("questionId") final String questionId,
                                                                  @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, AuthenticationFailedException, InvalidQuestionException {
         final QuestionEntity questionEntity = questionBusinessService.deleteQuestion(questionId, authorization, "Sign in first to delete a question");
-        final QuestionDeleteResponse questionDeleteResponse = new QuestionDeleteResponse().id(questionEntity.getUuid()).status("Question deleted successfully");
+        final QuestionDeleteResponse questionDeleteResponse = new QuestionDeleteResponse().id(questionEntity.getUuid()).status("QUESTION DELETED");
         return new ResponseEntity<>(questionDeleteResponse, HttpStatus.NO_CONTENT);
     }
 
@@ -109,7 +109,7 @@ public class QuestionController {
         questionBusinessService.editQuestionContent(authorization, questionEntity);
 
         //Prepare the HTTP response and return
-        final QuestionEditResponse questionEditResponse = new QuestionEditResponse().id(questionEntity.getUuid()).status("Question updated successfully");
+        final QuestionEditResponse questionEditResponse = new QuestionEditResponse().id(questionEntity.getUuid()).status("QUESTION EDITED");
         return new ResponseEntity<>(questionEditResponse, HttpStatus.OK);
     }
 
