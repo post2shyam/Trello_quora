@@ -16,6 +16,8 @@ public class AnswerDao {
     private EntityManager entityManager;
 
     /**
+     * Create new answer if question exists
+     *
      * @param answerEntity
      * @return
      */
@@ -25,6 +27,8 @@ public class AnswerDao {
     }
 
     /**
+     * Get answer by uuid
+     *
      * @param answerUuid
      * @return
      */
@@ -37,6 +41,8 @@ public class AnswerDao {
     }
 
     /**
+     * Delte the answer from the persistence storage
+     *
      * @param answerEntity
      * @return
      */
@@ -54,6 +60,7 @@ public class AnswerDao {
     }
 
     /**
+     * Get all answer for a question id based on uuid of the question
      * @param questionUuid
      * @return
      */

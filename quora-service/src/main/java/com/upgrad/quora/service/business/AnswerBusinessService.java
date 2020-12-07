@@ -139,6 +139,11 @@ public class AnswerBusinessService {
         return answerEntity;
     }
 
+    /**
+     * This method is used to check if user is signed in or not, throws exception if he/she is not
+     * @param authorization
+     * @throws AuthorizationFailedException
+     */
     private void isUserAuthenticated(final String authorization) throws AuthorizationFailedException {
         final UserAuthEntity userAuthToken = answerDao.getUserAuthToken(authorization);
         if (userAuthToken == null) {
@@ -146,6 +151,11 @@ public class AnswerBusinessService {
         }
     }
 
+    /**
+     * Checks if user has been logged out or not by checking the logoutAt entry
+     * @param authorization
+     * @throws AuthenticationFailedException
+     */
     private void isUserLoggedOut(final String authorization) throws AuthenticationFailedException {
         final UserAuthEntity userAuthToken = answerDao.getUserAuthToken(authorization);
         if (userAuthToken.getLogoutAt() != null) {
@@ -153,11 +163,22 @@ public class AnswerBusinessService {
         }
     }
 
+    /**
+     * Method checks if user role is admin
+     * @param authorization
+     * @return Boolean value
+     */
     private boolean isUserAdmin(final String authorization) {
         final UserAuthEntity userAuthToken = answerDao.getUserAuthToken(authorization);
         return userAuthToken.getUserEntity().getRole().equals("admin");
     }
 
+    /**
+     * Checks if owner of the answer is currently logged in user
+     * @param authorization
+     * @param answerEntity
+     * @return boolean value
+     */
     private boolean isUserAnswerOwner(final String authorization, final AnswerEntity answerEntity) {
         final UserAuthEntity userAuthToken = answerDao.getUserAuthToken(authorization);
         return userAuthToken.getUserEntity().getUuid().equals(answerEntity.getUser().getUuid());

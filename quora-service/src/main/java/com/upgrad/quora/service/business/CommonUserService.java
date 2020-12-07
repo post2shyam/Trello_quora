@@ -22,6 +22,14 @@ public class CommonUserService {
     @Autowired
     private UserAuthDao userAuthDao;
 
+    /**
+     * Gettign the user profile
+     * @param userUuid
+     * @param authorizationToken
+     * @return User entity
+     * @throws AuthorizationFailedException
+     * @throws UserNotFoundException
+     */
     @Transactional(propagation = Propagation.REQUIRED)
     public UserEntity getUserProfile(final String userUuid,
                                      final String authorizationToken) throws AuthorizationFailedException, UserNotFoundException {

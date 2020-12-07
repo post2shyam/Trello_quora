@@ -126,6 +126,12 @@ public class QuestionBusinessService {
         return questionDao.editQuestionContent(questionEntity);
     }
 
+    /**
+     * Method checks if user is authenticated
+     *
+     * @param authorization
+     * @throws AuthorizationFailedException
+     */
     private void isUserAuthenticated(final String authorization) throws AuthorizationFailedException {
         UserAuthEntity userAuthToken = questionDao.getUserAuthToken(authorization);
         if (userAuthToken == null) {
@@ -133,6 +139,13 @@ public class QuestionBusinessService {
         }
     }
 
+    /**
+     * Checks if user has been logged out
+     *
+     * @param authorization
+     * @param additionalErrorMsg
+     * @throws AuthenticationFailedException
+     */
     private void isUserLoggedOut(final String authorization, final String additionalErrorMsg) throws AuthenticationFailedException {
         UserAuthEntity userAuthToken = questionDao.getUserAuthToken(authorization);
         if (userAuthToken.getLogoutAt() != null) {
@@ -140,6 +153,13 @@ public class QuestionBusinessService {
         }
     }
 
+    /**
+     * Check if user is owner or admin
+     * @param authorization
+     * @param questionEntity
+     * @param additionalErrorMsg
+     * @throws AuthenticationFailedException
+     */
     private void isUserOwnerOrAdmin(final String authorization,
                                     final QuestionEntity questionEntity,
                                     final String additionalErrorMsg) throws AuthenticationFailedException {
@@ -159,6 +179,11 @@ public class QuestionBusinessService {
         }
     }
 
+    /**
+     * Check if question exists
+     * @param questionId
+     * @throws InvalidQuestionException
+     */
     private void doesQuestionExist(final String questionId) throws InvalidQuestionException {
         final QuestionEntity questionEntity = questionDao.getQuestionByUUId(questionId);
         if (questionEntity == null) {
