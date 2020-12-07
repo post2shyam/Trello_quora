@@ -113,6 +113,11 @@ public class QuestionController {
         return new ResponseEntity<>(questionEditResponse, HttpStatus.OK);
     }
 
+    /**
+     *
+     * @param allQuestions
+     * @return List of all question details response object
+     */
     private ResponseEntity<List<QuestionDetailsResponse>> prepareQuestionDetailResponse(final List<QuestionEntity> allQuestions) {
         final List<QuestionDetailsResponse> allQuestionsRsp = new ArrayList<>(allQuestions.size());
         for (QuestionEntity quesEntity : allQuestions) {
